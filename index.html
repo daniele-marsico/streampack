@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StreamPack</title>
+<meta name="description" content="Converti audio e copertina negli standard di Spotify e dei distributori (DistroKid, RouteNote, TuneCore…), dal telefono.">
+<meta name="theme-color" content="#0B0A12">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap">
+<style>
+/* Dark studio look: near-black base, violet→blue glow, one column for the phone */
+:root{
+  --bg:#0B0A12; --bg2:#14121F; --surface:#1A1828; --surface2:#232036; --ink:#F4F2FA; --muted:#A39FB8; --line:#2E2A45;
+  --v:#8B5CF6; --b:#3B82F6; --p:#D946EF;
+  --grad:linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#2563EB 100%);
+  --ok:#4ADE80; --ok-bg:rgba(74,222,128,.12); --warn:#FBBF24; --warn-bg:rgba(251,191,36,.14);
+  --display:"Bricolage Grotesque", ui-rounded, system-ui, sans-serif;
+  --body:system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{color:var(--ink);font:16px/1.45 var(--body);-webkit-tap-highlight-color:transparent;
+  background:radial-gradient(120% 60% at 0% 0%,rgba(124,58,237,.35),transparent 60%),radial-gradient(90% 50% at 100% 20%,rgba(37,99,235,.28),transparent 60%),var(--bg);
+  background-attachment:fixed;
+  padding:max(14px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(120px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));}
+.wrap{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font:800 25px/1 var(--display);letter-spacing:-.02em}
+.brand svg{width:36px;height:36px;border-radius:10px}
+select{font:600 14px var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.hero{margin:6px 0 0;font:800 31px/1.08 var(--display);letter-spacing:-.025em;text-wrap:balance}
+.hero span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{margin:0;color:var(--muted);font-size:16px;text-wrap:pretty}
+.tag b{color:var(--ink);font-weight:600}
+.tile{display:flex;align-items:center;gap:18px;width:100%;text-align:left;cursor:pointer;color:var(--ink);
+  background:linear-gradient(var(--surface),var(--surface)) padding-box, linear-gradient(135deg,rgba(139,92,246,.7),rgba(59,130,246,.35)) border-box;
+  border:1.5px solid transparent;border-radius:24px;padding:24px 20px;min-height:128px;transition:transform .12s}
+.tile:active{transform:scale(.98)}
+.tile .ic{flex:none;width:64px;height:64px;border-radius:18px;background:var(--grad);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(99,70,240,.45)}
+.tile .ic svg{width:32px;height:32px}
+.tile b{display:block;font:800 28px/1.1 var(--display);letter-spacing:-.02em}
+.spec{display:block;margin-top:6px;font:500 13px/1.35 var(--mono);color:var(--muted)}
+.std{display:flex;flex-wrap:wrap;gap:6px;color:var(--muted);font-size:13px}
+.std span{background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 11px}
+.back{align-self:flex-start;background:none;border:0;color:var(--muted);font:600 16px var(--body);padding:8px 0;cursor:pointer}
+h1{margin:0;font:800 36px/1.05 var(--display);letter-spacing:-.025em}
+.pick{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:150px;border-radius:24px;text-align:center;padding:20px;cursor:pointer;
+  background:linear-gradient(var(--bg2),var(--bg2)) padding-box, var(--grad) border-box;border:2px dashed transparent}
+.pick strong{font:800 23px var(--display);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pick small{color:var(--muted);font-size:14px;max-width:32ch}
+.pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.lbl{font-weight:700;font-size:15px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;background:var(--bg2);border-radius:14px;padding:5px}
+.seg button{border:0;border-radius:10px;padding:12px 4px;background:transparent;color:var(--muted);font:700 15px var(--body);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.seg button small{font-weight:500;font-size:11px;opacity:.85}
+.seg button[aria-pressed=true]{background:var(--grad);color:#fff}
+.row{display:flex;align-items:center;gap:14px}
+.row div{flex:1;min-width:0}
+.row b{display:block;font-size:15px}
+.row small{color:var(--muted);font-size:13px}
+.sw{position:relative;flex:none;width:58px;height:34px}
+.sw input{opacity:0;width:0;height:0}
+.sw span{position:absolute;inset:0;background:var(--surface2);border:1px solid var(--line);border-radius:99px;transition:.2s}
+.sw span::after{content:"";position:absolute;left:3px;top:3px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.2s}
+.sw input:checked+span{background:var(--grad);border-color:transparent}
+.sw input:checked+span::after{transform:translateX(24px)}
+.sw input:focus-visible+span{outline:3px solid var(--v);outline-offset:2px}
+.listhead{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+.link{background:none;border:0;color:var(--v);font:700 15px var(--body);cursor:pointer;padding:6px 0}
+.list{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.top{display:flex;align-items:flex-start;gap:10px}
+.top .name{flex:1;min-width:0;font-weight:700;overflow-wrap:anywhere}
+.x{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg2);color:var(--muted);font-size:18px;line-height:1;cursor:pointer}
+.state{color:var(--muted);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:600 13px var(--body);border-radius:99px;padding:5px 10px;background:var(--ok-bg);color:var(--ok)}
+.chip.w{background:var(--warn-bg);color:var(--warn)}
+.chip.i{background:transparent;color:var(--muted);box-shadow:0 0 0 1px var(--line) inset;font-variant-numeric:tabular-nums}
+.dl{align-self:flex-start;border:1px solid var(--line);background:var(--bg2);color:var(--ink);border-radius:12px;padding:10px 14px;font:700 14px var(--body);cursor:pointer}
+.bar{height:6px;border-radius:9px;background:var(--surface2);overflow:hidden}
+.bar i{display:block;height:100%;width:30%;background:var(--grad);animation:run 1s linear infinite}
+@keyframes run{from{transform:translateX(-100%)}to{transform:translateX(340%)}}
+.prev{width:100%;max-width:100%;aspect-ratio:1;object-fit:cover;border-radius:14px;background:var(--surface2)}
+.rules ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:4px;font-size:14px}
+.gen{border:0;border-radius:14px;padding:16px;background:var(--grad);color:#fff;font:800 18px var(--display);cursor:pointer}
+.gen:disabled{opacity:.5}
+textarea{width:100%;resize:vertical;font:16px/1.4 var(--body);color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px}
+textarea:focus{outline:2px solid var(--v);border-color:transparent}
+.note{color:var(--muted);font-size:13px}
+.note.err{color:var(--warn)}
+.ai{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:20px;padding:16px 18px;border:1px dashed var(--line);color:var(--muted)}
+.ai em{font-style:normal;font-size:12px;font-weight:700;color:var(--p);border:1px solid currentColor;border-radius:99px;padding:3px 9px}
+.save{position:fixed;left:0;right:0;bottom:0;padding:14px max(16px,env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));
+  background:linear-gradient(transparent,var(--bg) 35%)}
+.save div{max-width:520px;margin:0 auto;display:flex;gap:10px}
+.save button{flex:1;border:0;border-radius:18px;padding:19px 12px;font:800 19px var(--display);cursor:pointer}
+#dl-all{background:var(--grad);color:#fff;box-shadow:0 10px 30px rgba(79,70,229,.45)}
+#share{flex:0 0 auto;background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+.err{color:var(--warn)}
+footer{color:var(--muted);font-size:12px;text-align:center;opacity:.7}
+footer a{color:inherit}
+@media (prefers-reduced-motion:reduce){.bar i{animation:none;width:100%}.tile{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 36 36" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C3AED"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs><rect width="36" height="36" rx="10" fill="url(#lg)"/><g fill="#fff"><rect x="8" y="14" width="3" height="8" rx="1.5"/><rect x="13.5" y="10" width="3" height="16" rx="1.5"/><rect x="19" y="7" width="3" height="22" rx="1.5"/><rect x="24.5" y="12" width="3" height="12" rx="1.5"/></g></svg>
+      StreamPack
+    </div>
+    <select id="lang" aria-label="Language">
+      <option value="it">IT</option><option value="en">EN</option><option value="es">ES</option>
+      <option value="fr">FR</option><option value="de">DE</option><option value="pt">PT</option>
+    </select>
+  </header>
+
+  <!-- HOME -->
+  <section id="v-home" class="wrap" style="gap:16px">
+    <p class="hero" data-h="hero"></p>
+    <p class="tag" data-h="tag"></p>
+    <button class="tile" id="go-audio">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></span>
+      <span><b data-t="audio"></b><span class="spec">FLAC · MP3 320 kbps · WAV<br>44,1 kHz · 16-bit · stereo</span></span>
+    </button>
+    <button class="tile" id="go-cover">
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span>
+      <span><b data-t="cover"></b><span class="spec">3000 × 3000 px · JPG · RGB</span></span>
+    </button>
+    <div class="std"><span>Spotify</span><span>Apple Music</span><span>DistroKid</span><span>RouteNote</span><span>TuneCore</span><span>CD Baby</span><span>Amuse</span></div>
+  </section>
+
+  <!-- AUDIO -->
+  <section id="v-audio" class="wrap" hidden>
+    <button class="back" data-t="back"></button>
+    <h1 data-t="audio"></h1>
+    <div class="panel">
+      <span class="lbl" data-t="format"></span>
+      <div class="seg" id="fmt">
+        <button data-f="flac">FLAC<small data-t="rec"></small></button>
+        <button data-f="mp3">MP3<small>320 kbps</small></button>
+        <button data-f="wav">WAV<small>16-bit</small></button>
+      </div>
+      <div class="row">
+        <div><b data-t="opt"></b><small data-t="optSub"></small></div>
+        <label class="sw"><input id="opt-loud" type="checkbox"><span></span></label>
+      </div>
+    </div>
+    <label class="pick">
+      <strong data-t="pickAudio"></strong>
+      <small data-t="pickAudioHint"></small>
+      <input id="in-audio" type="file" multiple accept="audio/*,video/mp4,.mp3,.m4a,.aac,.wav,.flac,.ogg,.aiff,.aif,.mp4">
+    </label>
+    <div class="listhead" id="head-audio" hidden><span data-t="files"></span><button class="link" data-clear="audio" data-t="clear"></button></div>
+    <div class="list" id="list-audio"></div>
+  </section>
+
+  <!-- COVER -->
+  <section id="v-cover" class="wrap" hidden>
+    <button class="back" data-t="back"></button>
+    <h1 data-t="cover"></h1>
+    <label class="pick">
+      <strong data-t="pickCover"></strong>
+      <small data-t="pickCoverHint"></small>
+      <input id="in-cover" type="file" accept="image/*">
+    </label>
+    <div class="panel" id="ai-box">
+      <span class="lbl" data-t="ai"></span>
+      <textarea id="ai-prompt" rows="3" maxlength="400" data-ph="aiPh"></textarea>
+      <button class="gen" id="ai-go" type="button"><span data-t="gen"></span></button>
+      <small class="note" id="ai-msg"></small>
+    </div>
+    <div class="list" id="list-cover"></div>
+    <div class="panel rules"><span class="lbl" data-t="rulesT"></span><ul id="rules"></ul></div>
+  </section>
+
+  <footer><a href="privacy.html" data-t="privacy"></a> · <a href="terms.html" data-t="terms"></a><br>MP3 encoding: <a href="https://lame.sourceforge.io" target="_blank" rel="noopener">LAME</a> (LGPL) · <span data-t="local"></span></footer>
+</div>
+
+<div class="save" id="savebar" hidden><div><button id="dl-all" type="button"></button><button id="share" type="button" hidden></button></div></div>
+
+<script src="flac.js"></script>
+<script src="lame.min.js"></script>
+<script>
+const T={
+it:{hero:'Il tuo brano, <span>pronto per le piattaforme</span>.',tag:`Converte audio e copertina negli standard di Spotify e dei distributori: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Dal telefono, in un tocco.`,
+audio:"Audio",cover:"Copertina",back:"‹ Indietro",format:"Formato di uscita",rec:"consigliato",
+pickAudio:"Scegli i brani",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… anche più file insieme",opt:"Volume ottimizzato per Spotify",optSub:"-14 LUFS, picco massimo -1 dB",
+pickCover:"Scegli l'immagine",pickCoverHint:"Anche creata con l'AI: la portiamo noi a 3000 × 3000",ai:"Genera la copertina con l'AI",soon:"In arrivo",
+files:"File convertiti",clear:"Svuota",remove:"Rimuovi",working:"Conversione in corso…",download:"Scarica",downloadAll:"Scarica tutto",share:"Condividi",err:"Questo file non si apre su questo telefono",
+cSt:"Stereo",cPeak:"Picco sotto -1 dB",cPeakW:"Picco alto: possibile distorsione",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Sotto 10 MB",cSq:"Ritagliata quadrata",cLow:"Immagine piccola: potrebbe sembrare sfocata",
+rulesT:"Prima di caricare sul distributore",rules:["Niente link, @social, prezzi o loghi di Spotify/Apple","Il testo in copertina deve corrispondere ad artista e titolo","Niente immagini protette da copyright di altri"],local:"I file restano sul tuo telefono"},
+en:{hero:'Your track, <span>ready for every platform</span>.',tag:`Converts audio and cover art to the standards of Spotify and the distributors: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. From your phone, in one tap.`,
+audio:"Audio",cover:"Cover art",back:"‹ Back",format:"Output format",rec:"recommended",
+pickAudio:"Choose tracks",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… several files at once",opt:"Spotify-ready loudness",optSub:"-14 LUFS, peak max -1 dB",
+pickCover:"Choose image",pickCoverHint:"AI-made images welcome: we take them to 3000 × 3000",ai:"Generate cover with AI",soon:"Coming soon",
+files:"Converted files",clear:"Clear",remove:"Remove",working:"Converting…",download:"Download",downloadAll:"Download all",share:"Share",err:"This file can't be opened on this phone",
+cSt:"Stereo",cPeak:"Peak below -1 dB",cPeakW:"High peak: may distort",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Under 10 MB",cSq:"Cropped square",cLow:"Small image: may look blurry",
+rulesT:"Before uploading to your distributor",rules:["No links, @handles, prices or Spotify/Apple logos","Text on the cover must match artist and title","No copyrighted images from others"],local:"Files never leave your phone"},
+es:{hero:'Tu canción, <span>lista para las plataformas</span>.',tag:`Convierte audio y portada a los estándares de Spotify y las distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Desde el móvil, en un toque.`,
+audio:"Audio",cover:"Portada",back:"‹ Atrás",format:"Formato de salida",rec:"recomendado",
+pickAudio:"Elige las canciones",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… varios archivos a la vez",opt:"Volumen listo para Spotify",optSub:"-14 LUFS, pico máximo -1 dB",
+pickCover:"Elige la imagen",pickCoverHint:"También creada con IA: la llevamos a 3000 × 3000",ai:"Genera la portada con IA",soon:"Próximamente",
+files:"Archivos convertidos",clear:"Vaciar",remove:"Quitar",working:"Convirtiendo…",download:"Descargar",downloadAll:"Descargar todo",share:"Compartir",err:"Este archivo no se abre en este móvil",
+cSt:"Estéreo",cPeak:"Pico bajo -1 dB",cPeakW:"Pico alto: posible distorsión",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada cuadrada",cLow:"Imagen pequeña: puede verse borrosa",
+rulesT:"Antes de subirla a la distribuidora",rules:["Sin enlaces, @redes, precios ni logos de Spotify/Apple","El texto debe coincidir con artista y título","Sin imágenes con copyright de otros"],local:"Los archivos no salen de tu móvil"},
+fr:{hero:'Ton morceau, <span>prêt pour les plateformes</span>.',tag:`Convertit audio et pochette aux normes de Spotify et des distributeurs : <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Depuis ton téléphone, en un geste.`,
+audio:"Audio",cover:"Pochette",back:"‹ Retour",format:"Format de sortie",rec:"conseillé",
+pickAudio:"Choisir les morceaux",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… plusieurs fichiers à la fois",opt:"Volume prêt pour Spotify",optSub:"-14 LUFS, crête max -1 dB",
+pickCover:"Choisir l'image",pickCoverHint:"Même créée par IA : on la passe en 3000 × 3000",ai:"Générer la pochette avec l'IA",soon:"Bientôt",
+files:"Fichiers convertis",clear:"Vider",remove:"Retirer",working:"Conversion…",download:"Télécharger",downloadAll:"Tout télécharger",share:"Partager",err:"Ce fichier ne s'ouvre pas sur ce téléphone",
+cSt:"Stéréo",cPeak:"Crête sous -1 dB",cPeakW:"Crête élevée : distorsion possible",cSize:"3000 × 3000",cJpg:"JPG RVB",cWeight:"Moins de 10 Mo",cSq:"Recadrée carrée",cLow:"Petite image : risque de flou",
+rulesT:"Avant l'envoi au distributeur",rules:["Pas de liens, @réseaux, prix ni logos Spotify/Apple","Le texte doit correspondre à l'artiste et au titre","Pas d'images protégées appartenant à d'autres"],local:"Les fichiers restent sur ton téléphone"},
+de:{hero:'Dein Song, <span>bereit für alle Plattformen</span>.',tag:`Wandelt Audio und Cover in die Standards von Spotify und den Distributoren um: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Am Handy, mit einem Tipp.`,
+audio:"Audio",cover:"Cover",back:"‹ Zurück",format:"Ausgabeformat",rec:"empfohlen",
+pickAudio:"Songs wählen",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… auch mehrere Dateien",opt:"Spotify-Lautstärke",optSub:"-14 LUFS, Spitze max. -1 dB",
+pickCover:"Bild wählen",pickCoverHint:"Auch KI-Bilder: wir machen 3000 × 3000 daraus",ai:"Cover mit KI erstellen",soon:"Bald",
+files:"Umgewandelte Dateien",clear:"Leeren",remove:"Entfernen",working:"Wird umgewandelt…",download:"Herunterladen",downloadAll:"Alle laden",share:"Teilen",err:"Diese Datei lässt sich auf diesem Handy nicht öffnen",
+cSt:"Stereo",cPeak:"Spitze unter -1 dB",cPeakW:"Hohe Spitze: mögliche Verzerrung",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Unter 10 MB",cSq:"Quadratisch zugeschnitten",cLow:"Kleines Bild: kann unscharf wirken",
+rulesT:"Vor dem Hochladen beim Distributor",rules:["Keine Links, @Handles, Preise oder Spotify/Apple-Logos","Text auf dem Cover muss zu Artist und Titel passen","Keine urheberrechtlich geschützten fremden Bilder"],local:"Deine Dateien bleiben auf dem Handy"},
+pt:{hero:'Sua faixa, <span>pronta para as plataformas</span>.',tag:`Converte áudio e capa para os padrões do Spotify e das distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Pelo celular, em um toque.`,
+audio:"Áudio",cover:"Capa",back:"‹ Voltar",format:"Formato de saída",rec:"recomendado",
+pickAudio:"Escolher faixas",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… vários arquivos de uma vez",opt:"Volume pronto para Spotify",optSub:"-14 LUFS, pico máximo -1 dB",
+pickCover:"Escolher imagem",pickCoverHint:"Feita com IA também: levamos para 3000 × 3000",ai:"Gerar capa com IA",soon:"Em breve",
+files:"Arquivos convertidos",clear:"Limpar",remove:"Remover",working:"Convertendo…",download:"Baixar",downloadAll:"Baixar tudo",share:"Compartilhar",err:"Este arquivo não abre neste celular",
+cSt:"Estéreo",cPeak:"Pico abaixo de -1 dB",cPeakW:"Pico alto: pode distorcer",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada quadrada",cLow:"Imagem pequena: pode ficar borrada",
+rulesT:"Antes de enviar à distribuidora",rules:["Sem links, @redes, preços ou logos do Spotify/Apple","O texto da capa deve corresponder a artista e título","Sem imagens com direitos autorais de terceiros"],local:"Os arquivos não saem do seu celular"}
+};
+const X={"it": {"ai": "Oppure creala con l'AI", "aiPh": "Descrivi la copertina: es. tramonto viola su una città futuristica, stile neon", "gen": "✦ Genera copertina", "genW": "Sto creando la copertina…", "left": "Ancora {n} gratis oggi", "lim": "Hai usato le copertine gratuite di oggi. Riprova domani.", "busy": "Il servizio AI è al completo per oggi. Riprova domani.", "fail": "Generazione non riuscita. Riprova.", "privacy": "Privacy", "terms": "Condizioni d'uso"}, "en": {"ai": "Or create it with AI", "aiPh": "Describe your cover: e.g. purple sunset over a futuristic city, neon style", "gen": "✦ Generate cover", "genW": "Creating your cover…", "left": "{n} free left today", "lim": "You've used today's free covers. Try again tomorrow.", "busy": "The AI service is full for today. Try again tomorrow.", "fail": "Generation failed. Please try again.", "privacy": "Privacy", "terms": "Terms of use"}, "es": {"ai": "O créala con IA", "aiPh": "Describe la portada: p. ej. atardecer violeta sobre una ciudad futurista, estilo neón", "gen": "✦ Generar portada", "genW": "Creando la portada…", "left": "Te quedan {n} gratis hoy", "lim": "Ya usaste las portadas gratis de hoy. Vuelve mañana.", "busy": "El servicio de IA está completo hoy. Vuelve mañana.", "fail": "No se pudo generar. Inténtalo de nuevo.", "privacy": "Privacidad", "terms": "Condiciones de uso"}, "fr": {"ai": "Ou crée-la avec l'IA", "aiPh": "Décris ta pochette : ex. coucher de soleil violet sur une ville futuriste, style néon", "gen": "✦ Générer la pochette", "genW": "Création de la pochette…", "left": "Encore {n} gratuites aujourd'hui", "lim": "Tu as utilisé les pochettes gratuites du jour. Reviens demain.", "busy": "Le service IA est complet aujourd'hui. Reviens demain.", "fail": "Échec de la génération. Réessaie.", "privacy": "Confidentialité", "terms": "Conditions d'utilisation"}, "de": {"ai": "Oder mit KI erstellen", "aiPh": "Beschreibe dein Cover: z. B. violetter Sonnenuntergang über einer futuristischen Stadt, Neon-Stil", "gen": "✦ Cover erstellen", "genW": "Cover wird erstellt…", "left": "Heute noch {n} gratis", "lim": "Die Gratis-Cover für heute sind aufgebraucht. Morgen wieder.", "busy": "Der KI-Dienst ist heute ausgelastet. Morgen wieder.", "fail": "Erstellung fehlgeschlagen. Bitte erneut versuchen.", "privacy": "Datenschutz", "terms": "Nutzungsbedingungen"}, "pt": {"ai": "Ou crie com IA", "aiPh": "Descreva a capa: ex. pôr do sol roxo sobre uma cidade futurista, estilo neon", "gen": "✦ Gerar capa", "genW": "Criando a capa…", "left": "Ainda {n} grátis hoje", "lim": "Você usou as capas grátis de hoje. Tente amanhã.", "busy": "O serviço de IA está cheio hoje. Tente amanhã.", "fail": "Não foi possível gerar. Tente de novo.", "privacy": "Privacidade", "terms": "Termos de uso"}};for(const k in X)Object.assign(T[k],X[k]);
+const $=s=>document.querySelector(s);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let lang=(()=>{const s=store.get('sp-lang');if(s&&T[s])return s;const n=(navigator.language||'en').slice(0,2);return T[n]?n:'en'})();
+let format=store.get('sp-fmt')||'flac';
+const t=k=>T[lang][k];
+const fmt=(x,d=1)=>x.toLocaleString(lang,{minimumFractionDigits:d,maximumFractionDigits:d});
+function applyLang(){
+  document.documentElement.lang=lang;$('#lang').value=lang;
+  document.querySelectorAll('[data-t]').forEach(el=>el.textContent=t(el.dataset.t));
+  document.querySelectorAll('[data-h]').forEach(el=>el.innerHTML=t(el.dataset.h));
+  document.querySelectorAll('[data-ph]').forEach(el=>el.placeholder=t(el.dataset.ph));
+  aiNote();
+  $('#rules').innerHTML=t('rules').map(r=>`<li>${r}</li>`).join('');
+  rerender();
+}
+$('#lang').onchange=e=>{lang=e.target.value;store.set('sp-lang',lang);applyLang()};
+function applyFmt(){document.querySelectorAll('#fmt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===format))}
+document.querySelectorAll('#fmt button').forEach(b=>b.onclick=()=>{format=b.dataset.f;store.set('sp-fmt',format);applyFmt()});
+
+/* ---------- navigation ---------- */
+let view='home';
+function show(v){view=v;['home','audio','cover'].forEach(x=>$('#v-'+x).hidden=x!==v);refreshSave();scrollTo(0,0)}
+$('#go-audio').onclick=()=>show('audio');
+$('#go-cover').onclick=()=>show('cover');
+document.querySelectorAll('.back').forEach(b=>b.onclick=()=>show('home'));
+
+/* ---------- results ---------- */
+const results={audio:[],cover:[]};let uid=0;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const label=x=>typeof x==='function'?x():x;
+function rerender(){
+  for(const k of ['audio','cover']){
+    $('#list-'+k).innerHTML=results[k].map(r=>`<div class="card">
+      <div class="top"><div class="name">${esc(r.out||r.name)}</div><button class="x" data-rm="${k}:${r.id}" aria-label="${t('remove')}" title="${t('remove')}">✕</button></div>
+      ${r.url?`<img class="prev" src="${r.url}" alt="">`:''}
+      ${r.state==='work'?`<div class="state">${t('working')}</div><div class="bar"><i></i></div>`:''}
+      ${r.state==='err'?`<div class="state err">${t('err')}</div>`:''}
+      ${r.chips?`<div class="chips">${r.chips.map(([c,x])=>`<span class="chip ${c}">${c==='i'?'':c==='w'?'⚠︎ ':'✓ '}${esc(label(x))}</span>`).join('')}</div>`:''}
+      ${r.state==='ok'?`<button class="dl" data-dl="${k}:${r.id}">↓ ${t('download')}</button>`:''}
+    </div>`).join('');
+  }
+  $('#head-audio').hidden=!results.audio.length;
+  refreshSave();
+}
+const find=s=>{const [k,id]=s.split(':');return [k,results[k].findIndex(r=>r.id==id)]};
+document.addEventListener('click',e=>{
+  const rm=e.target.closest('[data-rm]'),dl=e.target.closest('[data-dl]'),cl=e.target.closest('[data-clear]');
+  if(rm){const [k,i]=find(rm.dataset.rm);if(i>=0){const r=results[k][i];r.dead=true;if(r.url)URL.revokeObjectURL(r.url);results[k].splice(i,1);rerender()}}
+  if(dl){const [k,i]=find(dl.dataset.dl);if(i>=0)download(results[k][i].file)}
+  if(cl){results[cl.dataset.clear].forEach(r=>r.dead=true);results[cl.dataset.clear]=[];rerender()}
+});
+function download(f){const a=document.createElement('a');const u=URL.createObjectURL(f);a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+const ready=()=>view==='home'?[]:results[view].filter(r=>r.state==='ok');
+function refreshSave(){
+  const list=ready();
+  $('#savebar').hidden=!list.length;
+  $('#dl-all').textContent='↓ '+(list.length>1?`${t('downloadAll')} (${list.length})`:t('download'));
+  const files=list.map(r=>r.file);
+  let can=false;try{can=!!(navigator.canShare&&files.length&&navigator.canShare({files}))}catch(e){}
+  $('#share').hidden=!can;$('#share').textContent=t('share');
+}
+$('#dl-all').onclick=async()=>{for(const r of ready()){download(r.file);await new Promise(z=>setTimeout(z,500))}};
+$('#share').onclick=async()=>{try{await navigator.share({files:ready().map(r=>r.file)})}catch(e){}};
+const base=n=>n.replace(/\.[^.]+$/,'');
+
+/* ---------- AUDIO ---------- */
+const SR=44100;
+const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+function decode(ab){
+  const ctx=new OAC(2,1,SR); // decodeAudioData resamples to 44.1 kHz
+  return new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej)});
+}
+async function kWeighted(L,R){
+  const ctx=new OAC(2,L.length,SR),b=ctx.createBuffer(2,L.length,SR);
+  b.getChannelData(0).set(L);b.getChannelData(1).set(R);
+  const s=ctx.createBufferSource();s.buffer=b;
+  const shelf=ctx.createBiquadFilter();shelf.type='highshelf';shelf.frequency.value=1681;shelf.gain.value=4;
+  const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=38;hp.Q.value=0.5;
+  s.connect(shelf).connect(hp).connect(ctx.destination);s.start();
+  const out=await new Promise((res,rej)=>{ctx.oncomplete=e=>res(e.renderedBuffer);const p=ctx.startRendering();if(p&&p.then)p.then(res,rej)});
+  return [out.getChannelData(0),out.getChannelData(1)];
+}
+function lufs(kL,kR){ // ITU-R BS.1770 gated integrated loudness
+  const n=kL.length,P=new Float64Array(n+1);
+  for(let i=0;i<n;i++)P[i+1]=P[i]+kL[i]*kL[i]+kR[i]*kR[i];
+  const bs=Math.round(.4*SR),st=Math.round(.1*SR),z=[];
+  if(n<bs)z.push(P[n]/Math.max(n,1));else for(let i=0;i+bs<=n;i+=st)z.push((P[i+bs]-P[i])/bs);
+  const ld=x=>-0.691+10*Math.log10(x);
+  const abs=z.filter(x=>ld(x)>-70);if(!abs.length)return -70;
+  const rel=ld(abs.reduce((a,b)=>a+b,0)/abs.length)-10;
+  const g=abs.filter(x=>ld(x)>rel);
+  return ld(g.reduce((a,b)=>a+b,0)/g.length);
+}
+function toInt16(ch,gain){ // TPDF dither to 16-bit
+  const o=new Int16Array(ch.length);
+  for(let i=0;i<ch.length;i++){let s=ch[i]*gain*32767+(Math.random()-Math.random());o[i]=s>32767?32767:s<-32768?-32768:Math.round(s)}
+  return o;
+}
+function wav16(L,R){
+  const n=L.length,buf=new ArrayBuffer(44+n*4),v=new DataView(buf);
+  const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};
+  w(0,'RIFF');v.setUint32(4,36+n*4,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,2,true);
+  v.setUint32(24,SR,true);v.setUint32(28,SR*4,true);v.setUint16(32,4,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,n*4,true);
+  for(let i=0,o=44;i<n;i++,o+=4){v.setInt16(o,L[i],true);v.setInt16(o+2,R[i],true)}
+  return buf;
+}
+async function mp3(L,R){
+  const enc=new lamejs.Mp3Encoder(2,SR,320),parts=[],B=1152*20;
+  for(let i=0;i<L.length;i+=B){
+    const c=enc.encodeBuffer(L.subarray(i,i+B),R.subarray(i,i+B));if(c.length)parts.push(new Uint8Array(c));
+    if(i%(B*40)===0)await new Promise(z=>setTimeout(z)); // keep the screen responsive
+  }
+  const e=enc.flush();if(e.length)parts.push(new Uint8Array(e));
+  return parts;
+}
+const tick=()=>new Promise(z=>setTimeout(z,30));
+async function doAudio(r,loud,f){
+  const b=await decode(await r.src.arrayBuffer());
+  const L=b.getChannelData(0),R=b.numberOfChannels>1?b.getChannelData(1):L;
+  let peak=0;for(let i=0;i<L.length;i++){const a=Math.abs(L[i]),c=Math.abs(R[i]);if(a>peak)peak=a;if(c>peak)peak=c}
+  const [kL,kR]=await kWeighted(L,R);
+  const lu=lufs(kL,kR);
+  const CEIL=Math.pow(10,-1/20); // -1 dBFS
+  let gain=1;
+  if(loud)gain=Math.min(Math.pow(10,(-14-lu)/20),CEIL/peak);
+  else if(peak>0.999)gain=0.999/peak;
+  await tick();
+  const iL=toInt16(L,gain),iR=toInt16(R,gain);await tick();
+  let data,type,ext,spec;
+  if(f==='mp3'){data=await mp3(iL,iR);type='audio/mpeg';ext='mp3';spec='MP3 320 kbps · '+fmt(44.1)+' kHz'}
+  else if(f==='wav'){data=[wav16(iL,iR)];type='audio/wav';ext='wav';spec='WAV 16-bit · '+fmt(44.1)+' kHz'}
+  else{data=[encodeFLAC(iL,iR,SR)];type='audio/flac';ext='flac';spec='FLAC 16-bit · '+fmt(44.1)+' kHz'}
+  r.out=base(r.name)+'.'+ext;
+  r.file=new File(data,r.out,{type});
+  const pdb=20*Math.log10(peak*gain||1e-9),d=Math.round(b.duration);
+  r.chips=[['',spec],['',()=>t('cSt')],pdb<=-0.95?['',()=>t('cPeak')]:['w',()=>t('cPeakW')],
+    ['i',`${fmt(lu+20*Math.log10(gain))} LUFS · ${Math.floor(d/60)}:${String(Math.floor(d%60)).padStart(2,'0')} · ${fmt(r.file.size/1e6)} MB`]];
+  r.state='ok';
+}
+$('#in-audio').onchange=async e=>{
+  const files=[...e.target.files];e.target.value='';
+  const loud=$('#opt-loud').checked,f=format;
+  const batch=files.map(x=>({id:++uid,name:x.name,src:x,state:'work'}));
+  results.audio.unshift(...batch);rerender();
+  for(const r of batch){ // one at a time keeps phone memory low
+    if(r.dead)continue;
+    try{await doAudio(r,loud,f)}catch(err){console.error(err);r.state='err'}
+    r.src=null;rerender();
+  }
+};
+
+/* ---------- COVER ---------- */
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src})}
+const toBlob=(c,q)=>new Promise((res,rej)=>c.toBlob(b=>b?res(b):rej(new Error('toBlob')),'image/jpeg',q));
+function canvas(n){const c=document.createElement('canvas');c.width=c.height=n;return c}
+function free(c){if(c){c.width=c.height=0}}
+async function render3000(img,sx,sy,s,stepped){
+  const TARGET=3000;let cur=null;
+  if(stepped&&s*2<TARGET){ // upscale in steps for a smoother result
+    cur=canvas(s);cur.getContext('2d').drawImage(img,sx,sy,s,s,0,0,s,s);
+    while(cur.width*2<TARGET){const n=canvas(cur.width*2),x=n.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(cur,0,0,n.width,n.height);free(cur);cur=n}
+  }
+  const out=canvas(TARGET),ox=out.getContext('2d');
+  ox.fillStyle='#fff';ox.fillRect(0,0,TARGET,TARGET);ox.imageSmoothingEnabled=true;ox.imageSmoothingQuality='high';
+  if(cur){ox.drawImage(cur,0,0,TARGET,TARGET);free(cur)}else ox.drawImage(img,sx,sy,s,s,0,0,TARGET,TARGET);
+  let q=.92,blob=await toBlob(out,q);
+  while(blob.size>9.5e6&&q>.6){q-=.08;blob=await toBlob(out,q)}
+  free(out);
+  return blob;
+}
+async function doCover(r){
+  const src=URL.createObjectURL(r.src),img=await loadImg(src);
+  const w=img.naturalWidth,h=img.naturalHeight,s=Math.min(w,h),sx=(w-s)/2,sy=(h-s)/2;
+  let blob=await render3000(img,sx,sy,s,true);
+  // check the real size of the saved file; if the phone shrank it, redo in one step
+  let chk=await loadImg(URL.createObjectURL(blob));
+  if(chk.naturalWidth!==3000||chk.naturalHeight!==3000){blob=await render3000(img,sx,sy,s,false);chk=await loadImg(URL.createObjectURL(blob))}
+  URL.revokeObjectURL(src);
+  const ok=chk.naturalWidth===3000&&chk.naturalHeight===3000;
+  r.out=base(r.name)+'_3000x3000.jpg';
+  r.file=new File([blob],r.out,{type:'image/jpeg'});
+  r.url=URL.createObjectURL(blob);
+  r.chips=[ok?['',()=>t('cSize')]:['w',`${chk.naturalWidth} × ${chk.naturalHeight}`],['',()=>t('cJpg')],['',()=>t('cWeight')]];
+  if(w!==h)r.chips.push(['',()=>t('cSq')]);
+  if(s<1000)r.chips.push(['w',()=>t('cLow')]);
+  r.chips.push(['i',`${w}×${h} → ${chk.naturalWidth}×${chk.naturalHeight} · ${fmt(blob.size/1e6)} MB`]);
+  r.state='ok';
+}
+$('#in-cover').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  results.cover.forEach(x=>{if(x.url)URL.revokeObjectURL(x.url)});
+  const r={id:++uid,name:f.name,src:f,state:'work'};
+  results.cover=[r];rerender(); // a new image replaces the previous one
+  try{await doCover(r)}catch(err){console.error(err);r.state='err'}
+  r.src=null;rerender();
+};
+
+/* ---------- AI cover ---------- */
+const AIMAX=4;
+function aiLeft(){const d=new Date().toISOString().slice(0,10);const s=(store.get('sp-ai')||'').split('|');return s[0]===d?Math.max(0,AIMAX-(+s[1]||0)):AIMAX}
+function aiUse(left){store.set('sp-ai',new Date().toISOString().slice(0,10)+'|'+(AIMAX-left))}
+let aiErr='';
+function aiNote(){const m=$('#ai-msg');if(!m)return;const n=aiLeft();m.className='note'+(aiErr?' err':'');m.textContent=aiErr?t(aiErr):t('left').replace('{n}',n);$('#ai-go').disabled=n<=0||aiBusy}
+let aiBusy=false;
+$('#ai-go').onclick=async()=>{
+  const prompt=$('#ai-prompt').value.trim();if(prompt.length<3){$('#ai-prompt').focus();return}
+  aiBusy=true;aiErr='';aiNote();$('#ai-go').firstElementChild.textContent=t('genW');
+  results.cover.forEach(x=>{if(x.url)URL.revokeObjectURL(x.url)});
+  const r={id:++uid,name:'cover-ai.png',state:'work'};results.cover=[r];rerender();
+  try{
+    const res=await fetch('/api/cover',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({prompt})});
+    const j=await res.json().catch(()=>({}));
+    if(!res.ok||!j.image){aiErr=j.error==='limit'?'lim':j.error==='busy'||j.error==='unavailable'?'busy':'fail';if(j.error==='limit')aiUse(0);throw new Error(j.error||res.status)}
+    aiUse(Math.min(aiLeft()-1,j.left??AIMAX));
+    const bin=atob(j.image),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
+    const type=bin.startsWith('\x89PNG')?'image/png':'image/jpeg';
+    r.src=new File([u],'cover-ai.'+(type==='image/png'?'png':'jpg'),{type});
+    await doCover(r);
+  }catch(e){console.error(e);results.cover=[];if(!aiErr)aiErr='fail'}
+  r.src=null;aiBusy=false;$('#ai-go').firstElementChild.textContent=t('gen');aiNote();rerender();
+};
+
+applyFmt();applyLang();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script>
+</body>
+</html>
