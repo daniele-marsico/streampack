@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "it.controllinghub.streampack",
+        "sha256_cert_fingerprints": ["61:24:96:14:EE:CF:8C:1F:A9:16:70:1A:85:0F:D5:65:A1:B9:FC:1C:51:7F:42:01:5F:1D:CA:E2:3B:E5:B9:61"]
+      }
+    }]
