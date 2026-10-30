@@ -1,8 +1,11 @@
 [{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "it.controllinghub.streampack",
-        "sha256_cert_fingerprints": ["61:24:96:14:EE:CF:8C:1F:A9:16:70:1A:85:0F:D5:65:A1:B9:FC:1C:51:7F:42:01:5F:1D:CA:E2:3B:E5:B9:61"]
-      }
-    }]
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "it.controllinghub.streampack",
+    "sha256_cert_fingerprints": [
+      "1D:FA:1A:F6:45:27:A4:6B:9C:61:C3:1D:26:E0:6E:88:A2:4C:81:F0:D0:96:D8:39:75:F6:7A:D7:A9:37:4F:E9",
+      "61:24:96:14:EE:CF:8C:1F:A9:16:70:1A:85:0F:D5:65:A1:B9:FC:1C:51:7F:42:01:5F:1D:CA:E2:3B:E5:B9:61"
+    ]
+  }
+}]
