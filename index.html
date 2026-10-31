@@ -135,7 +135,7 @@ footer a{color:inherit}
 #intro .word{font:800 26px/1 var(--display);letter-spacing:.01em;color:var(--ink);opacity:0;translate:0 10px;filter:blur(8px);
   animation:wordIn .8s cubic-bezier(.2,.8,.2,1) .7s forwards}
 #intro .word span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-@keyframes round{to{rx:30;ry:30;transform:scale(.94)}}
+@keyframes round{50%{transform:scale(1.04)}to{transform:scale(.94)}}
 @keyframes shine{50%{opacity:.35}to{opacity:0}}
 @keyframes eq{to{transform:scaleY(.55)}}
 @keyframes glowIn{to{opacity:1;scale:1}}
@@ -152,9 +152,9 @@ footer a{color:inherit}
       <defs>
         <linearGradient id="ig" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7C3AED"/><stop offset=".5" stop-color="#4F46E5"/><stop offset="1" stop-color="#2563EB"/></linearGradient>
         <linearGradient id="is" x1="0" y1="0" x2="1" y2="1"><stop offset=".35" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff"/><stop offset=".65" stop-color="#fff" stop-opacity="0"/></linearGradient>
-        <clipPath id="ic"><rect class="sq" width="128" height="128" rx="0" ry="0"/></clipPath>
+        <clipPath id="ic"><rect class="sq" width="128" height="128" rx="30" ry="30"/></clipPath>
       </defs>
-      <rect class="sq" width="128" height="128" rx="0" ry="0" fill="url(#ig)"/>
+      <rect class="sq" width="128" height="128" rx="30" ry="30" fill="url(#ig)"/>
       <g fill="#fff">
         <rect class="b" x="42.5" y="55" width="7.5" height="18" rx="3.75"/>
         <rect class="b" x="53.5" y="47.5" width="7.5" height="33" rx="3.75"/>
