@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="it">
+<html lang="en" translate="no" class="notranslate">
 <head>
 <meta charset="utf-8">
+<meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StreamPack</title>
-<meta name="description" content="Converti audio e copertina negli standard di Spotify e dei distributori (DistroKid, RouteNote, TuneCore…), dal telefono.">
+<meta name="description" content="Convert audio and cover art to Spotify and distributor standards (DistroKid, RouteNote, TuneCore…), right from your phone.">
 <meta name="theme-color" content="#0B0A12">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -26,7 +27,13 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{margin:0;min-height:100%}
+.tip{display:flex;gap:10px;align-items:flex-start;margin:14px 0;padding:12px 14px;border-radius:14px;background:var(--warn-bg);color:var(--ink);font-size:14px;line-height:1.4}
+.tip>span:first-child{color:var(--warn);font-size:16px;line-height:1.2}
+html,body{margin:0;min-height:100%;overscroll-behavior:none}
+/* Native feel: no text selection or long-press menus on the UI, only in inputs */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea{-webkit-user-select:text;user-select:text}
+img{-webkit-user-drag:none}
 body{color:var(--ink);font:16px/1.45 var(--body);-webkit-tap-highlight-color:transparent;
   background:radial-gradient(120% 60% at 0% 0%,rgba(124,58,237,.35),transparent 60%),radial-gradient(90% 50% at 100% 20%,rgba(37,99,235,.28),transparent 60%),var(--bg);
   background-attachment:fixed;
@@ -120,7 +127,7 @@ footer a{color:inherit}
       StreamPack
     </div>
     <select id="lang" aria-label="Language">
-      <option value="it">IT</option><option value="en">EN</option><option value="es">ES</option>
+      <option value="en">EN</option><option value="it">IT</option><option value="es">ES</option>
       <option value="fr">FR</option><option value="de">DE</option><option value="pt">PT</option>
     </select>
   </header>
@@ -181,6 +188,7 @@ footer a{color:inherit}
       <small class="note" id="ai-msg"></small>
     </div>
     <div class="list" id="list-cover"></div>
+    <p class="tip"><span aria-hidden="true">⚠</span><span data-t="waTip"></span></p>
     <div class="panel rules"><span class="lbl" data-t="rulesT"></span><ul id="rules"></ul></div>
   </section>
 
@@ -199,47 +207,47 @@ pickAudio:"Scegli i brani",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… anche più
 pickCover:"Scegli l'immagine",pickCoverHint:"Anche creata con l'AI: la portiamo noi a 3000 × 3000",ai:"Genera la copertina con l'AI",soon:"In arrivo",
 files:"File convertiti",clear:"Svuota",remove:"Rimuovi",working:"Conversione in corso…",download:"Scarica",downloadAll:"Scarica tutto",share:"Condividi",err:"Questo file non si apre su questo telefono",
 cSt:"Stereo",cPeak:"Picco sotto -1 dB",cPeakW:"Picco alto: possibile distorsione",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Sotto 10 MB",cSq:"Ritagliata quadrata",cLow:"Immagine piccola: potrebbe sembrare sfocata",
-rulesT:"Prima di caricare sul distributore",rules:["Niente link, @social, prezzi o loghi di Spotify/Apple","Il testo in copertina deve corrispondere ad artista e titolo","Niente immagini protette da copyright di altri"],local:"I file restano sul tuo telefono"},
+rulesT:"Prima di caricare sul distributore",rules:["Niente link, @social, prezzi o loghi di Spotify/Apple","Il testo in copertina deve corrispondere ad artista e titolo","Niente immagini protette da copyright di altri"],waTip:"Non inviare la copertina con WhatsApp, Telegram o simili: comprimono e ridimensionano l'immagine, che non rispetta più gli standard delle piattaforme. Caricala direttamente dal telefono o trasferiscila come file (email, Google Drive, cavo USB).",local:"I file restano sul tuo telefono"},
 en:{hero:'Your track, <span>ready for every platform</span>.',tag:`Converts audio and cover art to the standards of Spotify and the distributors: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. From your phone, in one tap.`,
 audio:"Audio",cover:"Cover art",back:"‹ Back",format:"Output format",rec:"recommended",
 pickAudio:"Choose tracks",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… several files at once",opt:"Spotify-ready loudness",optSub:"-14 LUFS, peak max -1 dB",
 pickCover:"Choose image",pickCoverHint:"AI-made images welcome: we take them to 3000 × 3000",ai:"Generate cover with AI",soon:"Coming soon",
 files:"Converted files",clear:"Clear",remove:"Remove",working:"Converting…",download:"Download",downloadAll:"Download all",share:"Share",err:"This file can't be opened on this phone",
 cSt:"Stereo",cPeak:"Peak below -1 dB",cPeakW:"High peak: may distort",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Under 10 MB",cSq:"Cropped square",cLow:"Small image: may look blurry",
-rulesT:"Before uploading to your distributor",rules:["No links, @handles, prices or Spotify/Apple logos","Text on the cover must match artist and title","No copyrighted images from others"],local:"Files never leave your phone"},
+rulesT:"Before uploading to your distributor",rules:["No links, @handles, prices or Spotify/Apple logos","Text on the cover must match artist and title","No copyrighted images from others"],waTip:"Don't send the cover through WhatsApp, Telegram or similar apps: they compress and resize the image, so it no longer meets platform standards. Upload it straight from your phone or transfer it as a file (email, Google Drive, USB cable).",local:"Files never leave your phone"},
 es:{hero:'Tu canción, <span>lista para las plataformas</span>.',tag:`Convierte audio y portada a los estándares de Spotify y las distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Desde el móvil, en un toque.`,
 audio:"Audio",cover:"Portada",back:"‹ Atrás",format:"Formato de salida",rec:"recomendado",
 pickAudio:"Elige las canciones",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… varios archivos a la vez",opt:"Volumen listo para Spotify",optSub:"-14 LUFS, pico máximo -1 dB",
 pickCover:"Elige la imagen",pickCoverHint:"También creada con IA: la llevamos a 3000 × 3000",ai:"Genera la portada con IA",soon:"Próximamente",
 files:"Archivos convertidos",clear:"Vaciar",remove:"Quitar",working:"Convirtiendo…",download:"Descargar",downloadAll:"Descargar todo",share:"Compartir",err:"Este archivo no se abre en este móvil",
 cSt:"Estéreo",cPeak:"Pico bajo -1 dB",cPeakW:"Pico alto: posible distorsión",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada cuadrada",cLow:"Imagen pequeña: puede verse borrosa",
-rulesT:"Antes de subirla a la distribuidora",rules:["Sin enlaces, @redes, precios ni logos de Spotify/Apple","El texto debe coincidir con artista y título","Sin imágenes con copyright de otros"],local:"Los archivos no salen de tu móvil"},
+rulesT:"Antes de subirla a la distribuidora",rules:["Sin enlaces, @redes, precios ni logos de Spotify/Apple","El texto debe coincidir con artista y título","Sin imágenes con copyright de otros"],waTip:"No envíes la portada por WhatsApp, Telegram o similares: comprimen y redimensionan la imagen y deja de cumplir los estándares de las plataformas. Súbela directamente desde el móvil o pásala como archivo (email, Google Drive, cable USB).",local:"Los archivos no salen de tu móvil"},
 fr:{hero:'Ton morceau, <span>prêt pour les plateformes</span>.',tag:`Convertit audio et pochette aux normes de Spotify et des distributeurs : <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Depuis ton téléphone, en un geste.`,
 audio:"Audio",cover:"Pochette",back:"‹ Retour",format:"Format de sortie",rec:"conseillé",
 pickAudio:"Choisir les morceaux",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… plusieurs fichiers à la fois",opt:"Volume prêt pour Spotify",optSub:"-14 LUFS, crête max -1 dB",
 pickCover:"Choisir l'image",pickCoverHint:"Même créée par IA : on la passe en 3000 × 3000",ai:"Générer la pochette avec l'IA",soon:"Bientôt",
 files:"Fichiers convertis",clear:"Vider",remove:"Retirer",working:"Conversion…",download:"Télécharger",downloadAll:"Tout télécharger",share:"Partager",err:"Ce fichier ne s'ouvre pas sur ce téléphone",
 cSt:"Stéréo",cPeak:"Crête sous -1 dB",cPeakW:"Crête élevée : distorsion possible",cSize:"3000 × 3000",cJpg:"JPG RVB",cWeight:"Moins de 10 Mo",cSq:"Recadrée carrée",cLow:"Petite image : risque de flou",
-rulesT:"Avant l'envoi au distributeur",rules:["Pas de liens, @réseaux, prix ni logos Spotify/Apple","Le texte doit correspondre à l'artiste et au titre","Pas d'images protégées appartenant à d'autres"],local:"Les fichiers restent sur ton téléphone"},
+rulesT:"Avant l'envoi au distributeur",rules:["Pas de liens, @réseaux, prix ni logos Spotify/Apple","Le texte doit correspondre à l'artiste et au titre","Pas d'images protégées appartenant à d'autres"],waTip:"N'envoie pas la pochette par WhatsApp, Telegram ou autres : ils compressent et redimensionnent l'image, qui ne respecte plus les standards des plateformes. Mets-la en ligne directement depuis ton téléphone ou transfère-la en fichier (e-mail, Google Drive, câble USB).",local:"Les fichiers restent sur ton téléphone"},
 de:{hero:'Dein Song, <span>bereit für alle Plattformen</span>.',tag:`Wandelt Audio und Cover in die Standards von Spotify und den Distributoren um: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Am Handy, mit einem Tipp.`,
 audio:"Audio",cover:"Cover",back:"‹ Zurück",format:"Ausgabeformat",rec:"empfohlen",
 pickAudio:"Songs wählen",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… auch mehrere Dateien",opt:"Spotify-Lautstärke",optSub:"-14 LUFS, Spitze max. -1 dB",
 pickCover:"Bild wählen",pickCoverHint:"Auch KI-Bilder: wir machen 3000 × 3000 daraus",ai:"Cover mit KI erstellen",soon:"Bald",
 files:"Umgewandelte Dateien",clear:"Leeren",remove:"Entfernen",working:"Wird umgewandelt…",download:"Herunterladen",downloadAll:"Alle laden",share:"Teilen",err:"Diese Datei lässt sich auf diesem Handy nicht öffnen",
 cSt:"Stereo",cPeak:"Spitze unter -1 dB",cPeakW:"Hohe Spitze: mögliche Verzerrung",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Unter 10 MB",cSq:"Quadratisch zugeschnitten",cLow:"Kleines Bild: kann unscharf wirken",
-rulesT:"Vor dem Hochladen beim Distributor",rules:["Keine Links, @Handles, Preise oder Spotify/Apple-Logos","Text auf dem Cover muss zu Artist und Titel passen","Keine urheberrechtlich geschützten fremden Bilder"],local:"Deine Dateien bleiben auf dem Handy"},
+rulesT:"Vor dem Hochladen beim Distributor",rules:["Keine Links, @Handles, Preise oder Spotify/Apple-Logos","Text auf dem Cover muss zu Artist und Titel passen","Keine urheberrechtlich geschützten fremden Bilder"],waTip:"Schick das Cover nicht über WhatsApp, Telegram o. Ä.: Sie komprimieren und verkleinern das Bild, dann erfüllt es die Plattform-Standards nicht mehr. Lade es direkt vom Handy hoch oder übertrage es als Datei (E-Mail, Google Drive, USB-Kabel).",local:"Deine Dateien bleiben auf dem Handy"},
 pt:{hero:'Sua faixa, <span>pronta para as plataformas</span>.',tag:`Converte áudio e capa para os padrões do Spotify e das distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Pelo celular, em um toque.`,
 audio:"Áudio",cover:"Capa",back:"‹ Voltar",format:"Formato de saída",rec:"recomendado",
 pickAudio:"Escolher faixas",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… vários arquivos de uma vez",opt:"Volume pronto para Spotify",optSub:"-14 LUFS, pico máximo -1 dB",
 pickCover:"Escolher imagem",pickCoverHint:"Feita com IA também: levamos para 3000 × 3000",ai:"Gerar capa com IA",soon:"Em breve",
 files:"Arquivos convertidos",clear:"Limpar",remove:"Remover",working:"Convertendo…",download:"Baixar",downloadAll:"Baixar tudo",share:"Compartilhar",err:"Este arquivo não abre neste celular",
 cSt:"Estéreo",cPeak:"Pico abaixo de -1 dB",cPeakW:"Pico alto: pode distorcer",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada quadrada",cLow:"Imagem pequena: pode ficar borrada",
-rulesT:"Antes de enviar à distribuidora",rules:["Sem links, @redes, preços ou logos do Spotify/Apple","O texto da capa deve corresponder a artista e título","Sem imagens com direitos autorais de terceiros"],local:"Os arquivos não saem do seu celular"}
+rulesT:"Antes de enviar à distribuidora",rules:["Sem links, @redes, preços ou logos do Spotify/Apple","O texto da capa deve corresponder a artista e título","Sem imagens com direitos autorais de terceiros"],waTip:"Não envie a capa pelo WhatsApp, Telegram ou similares: eles comprimem e redimensionam a imagem, que deixa de cumprir os padrões das plataformas. Envie direto do celular ou transfira como arquivo (e-mail, Google Drive, cabo USB).",local:"Os arquivos não saem do seu celular"}
 };
 const X={"it": {"ai": "Oppure creala con l'AI", "aiPh": "Descrivi la copertina: es. tramonto viola su una città futuristica, stile neon", "gen": "✦ Genera copertina", "genW": "Sto creando la copertina…", "left": "Ancora {n} gratis oggi", "lim": "Hai usato le copertine gratuite di oggi. Riprova domani.", "busy": "Il servizio AI è al completo per oggi. Riprova domani.", "fail": "Generazione non riuscita. Riprova.", "privacy": "Privacy", "terms": "Condizioni d'uso"}, "en": {"ai": "Or create it with AI", "aiPh": "Describe your cover: e.g. purple sunset over a futuristic city, neon style", "gen": "✦ Generate cover", "genW": "Creating your cover…", "left": "{n} free left today", "lim": "You've used today's free covers. Try again tomorrow.", "busy": "The AI service is full for today. Try again tomorrow.", "fail": "Generation failed. Please try again.", "privacy": "Privacy", "terms": "Terms of use"}, "es": {"ai": "O créala con IA", "aiPh": "Describe la portada: p. ej. atardecer violeta sobre una ciudad futurista, estilo neón", "gen": "✦ Generar portada", "genW": "Creando la portada…", "left": "Te quedan {n} gratis hoy", "lim": "Ya usaste las portadas gratis de hoy. Vuelve mañana.", "busy": "El servicio de IA está completo hoy. Vuelve mañana.", "fail": "No se pudo generar. Inténtalo de nuevo.", "privacy": "Privacidad", "terms": "Condiciones de uso"}, "fr": {"ai": "Ou crée-la avec l'IA", "aiPh": "Décris ta pochette : ex. coucher de soleil violet sur une ville futuriste, style néon", "gen": "✦ Générer la pochette", "genW": "Création de la pochette…", "left": "Encore {n} gratuites aujourd'hui", "lim": "Tu as utilisé les pochettes gratuites du jour. Reviens demain.", "busy": "Le service IA est complet aujourd'hui. Reviens demain.", "fail": "Échec de la génération. Réessaie.", "privacy": "Confidentialité", "terms": "Conditions d'utilisation"}, "de": {"ai": "Oder mit KI erstellen", "aiPh": "Beschreibe dein Cover: z. B. violetter Sonnenuntergang über einer futuristischen Stadt, Neon-Stil", "gen": "✦ Cover erstellen", "genW": "Cover wird erstellt…", "left": "Heute noch {n} gratis", "lim": "Die Gratis-Cover für heute sind aufgebraucht. Morgen wieder.", "busy": "Der KI-Dienst ist heute ausgelastet. Morgen wieder.", "fail": "Erstellung fehlgeschlagen. Bitte erneut versuchen.", "privacy": "Datenschutz", "terms": "Nutzungsbedingungen"}, "pt": {"ai": "Ou crie com IA", "aiPh": "Descreva a capa: ex. pôr do sol roxo sobre uma cidade futurista, estilo neon", "gen": "✦ Gerar capa", "genW": "Criando a capa…", "left": "Ainda {n} grátis hoje", "lim": "Você usou as capas grátis de hoje. Tente amanhã.", "busy": "O serviço de IA está cheio hoje. Tente amanhã.", "fail": "Não foi possível gerar. Tente de novo.", "privacy": "Privacidade", "terms": "Termos de uso"}};for(const k in X)Object.assign(T[k],X[k]);
 const $=s=>document.querySelector(s);
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
-let lang=(()=>{const s=store.get('sp-lang');if(s&&T[s])return s;const n=(navigator.language||'en').slice(0,2);return T[n]?n:'en'})();
+let lang=(()=>{const s=store.get('sp-lang');if(s&&T[s])return s;return 'en'})();
 let format=store.get('sp-fmt')||'flac';
 const t=k=>T[lang][k];
 const fmt=(x,d=1)=>x.toLocaleString(lang,{minimumFractionDigits:d,maximumFractionDigits:d});
