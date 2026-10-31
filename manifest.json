@@ -60,5 +60,13 @@
       "type": "image/png",
       "form_factor": "narrow"
     }
-  ]
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=it.controllinghub.streampack",
+      "id": "it.controllinghub.streampack"
+    }
+  ],
+  "prefer_related_applications": true
 }
