@@ -153,6 +153,7 @@ footer a{color:inherit}
 @keyframes introOut{to{opacity:0;filter:blur(14px);transform:scale(1.08);visibility:hidden}}
 @media (prefers-reduced-motion:reduce){#intro,#intro *{animation-duration:.01s!important;animation-delay:0s!important}#intro{animation:introOut .3s ease .6s forwards}}
 </style>
+<style>.promo{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;border:1px solid rgba(124,58,237,.45)}.promo b{font-size:1.05rem}.promo .pcta{align-self:flex-start;margin-top:4px;padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#2563EB);color:#fff;font-weight:700}.promo .pad{opacity:.6;font-size:.72rem}</style>
 </head>
 <body>
 <div id="intro" aria-hidden="true" hidden>
@@ -223,6 +224,7 @@ footer a{color:inherit}
     </label>
     <div class="listhead" id="head-audio" hidden><span data-t="files"></span><button class="link" data-clear="audio" data-t="clear"></button></div>
     <div class="list" id="list-audio"></div>
+    <a class="panel promo" id="promo-audio" hidden href="https://videogen.io/ai-video-generator?fp_ref=daniele-7d9afb" target="_blank" rel="sponsored noopener"><span class="lbl" data-p="pT"></span><b data-p="pH"></b><small data-p="pS"></small><span class="pcta" data-p="pC"></span><small class="pad" data-p="pAd"></small></a>
   </section>
 
   <!-- COVER -->
@@ -241,6 +243,7 @@ footer a{color:inherit}
       <small class="note" id="ai-msg"></small>
     </div>
     <div class="list" id="list-cover"></div>
+    <a class="panel promo" id="promo-cover" hidden href="https://videogen.io/ai-video-generator?fp_ref=daniele-7d9afb" target="_blank" rel="sponsored noopener"><span class="lbl" data-p="pT"></span><b data-p="pH"></b><small data-p="pS"></small><span class="pcta" data-p="pC"></span><small class="pad" data-p="pAd"></small></a>
     <p class="tip"><span aria-hidden="true">⚠</span><span data-t="waTip"></span></p>
     <div class="panel rules"><span class="lbl" data-t="rulesT"></span><ul id="rules"></ul></div>
   </section>
@@ -313,7 +316,7 @@ function applyLang(){
   $('#rules').innerHTML=t('rules').map(r=>`<li>${r}</li>`).join('');
   rerender();
 }
-$('#lang').onchange=e=>{lang=e.target.value;store.set('sp-lang',lang);applyLang()};
+$('#lang').onchange=e=>{lang=e.target.value;store.set('sp-lang',lang);applyLang();applyPromo()};
 function applyFmt(){document.querySelectorAll('#fmt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===format))}
 document.querySelectorAll('#fmt button').forEach(b=>b.onclick=()=>{format=b.dataset.f;store.set('sp-fmt',format);applyFmt()});
 
@@ -324,6 +327,19 @@ $('#go-audio').onclick=()=>show('audio');
 $('#go-cover').onclick=()=>show('cover');
 document.querySelectorAll('.back').forEach(b=>b.onclick=()=>show('home'));
 
+
+/* ---------- promo (affiliate) ---------- */
+const P={
+it:{pT:"Prossimo passo",pH:"Crea il video promo del tuo brano",pS:"Visualizer, clip per Reels, TikTok e Shorts con voce e sottotitoli AI, in pochi minuti.",pC:"Prova VideoGen gratis →",pAd:"Link affiliato: se ti abboni, StreamPack riceve una commissione senza costi per te."},
+en:{pT:"Next step",pH:"Make a promo video for your track",pS:"Visualizers and clips for Reels, TikTok and Shorts with AI voice and captions, in minutes.",pC:"Try VideoGen free →",pAd:"Affiliate link: if you subscribe, StreamPack earns a commission at no cost to you."},
+es:{pT:"Siguiente paso",pH:"Crea el vídeo promocional de tu tema",pS:"Visualizers y clips para Reels, TikTok y Shorts con voz y subtítulos IA, en minutos.",pC:"Prueba VideoGen gratis →",pAd:"Enlace de afiliado: si te suscribes, StreamPack recibe una comisión sin coste para ti."},
+fr:{pT:"Étape suivante",pH:"Crée la vidéo promo de ton morceau",pS:"Visualizers et clips pour Reels, TikTok et Shorts avec voix et sous-titres IA, en quelques minutes.",pC:"Essaie VideoGen gratuitement →",pAd:"Lien affilié : si tu t'abonnes, StreamPack touche une commission, sans frais pour toi."},
+de:{pT:"Nächster Schritt",pH:"Erstelle ein Promo-Video für deinen Track",pS:"Visualizer und Clips für Reels, TikTok und Shorts mit KI-Stimme und Untertiteln, in Minuten.",pC:"VideoGen kostenlos testen →",pAd:"Affiliate-Link: Wenn du ein Abo abschließt, erhält StreamPack eine Provision, ohne Kosten für dich."},
+pt:{pT:"Próximo passo",pH:"Crie o vídeo promocional da sua faixa",pS:"Visualizers e clipes para Reels, TikTok e Shorts com voz e legendas por IA, em minutos.",pC:"Experimente o VideoGen grátis →",pAd:"Link de afiliado: se você assinar, o StreamPack recebe uma comissão sem custo para você."}};
+function applyPromo(){
+  document.querySelectorAll('[data-p]').forEach(e=>e.textContent=(P[lang]||P.en)[e.dataset.p]);
+  for(const k of ['audio','cover'])$('#promo-'+k).hidden=!results[k].some(r=>r.state==='ok');
+}
 /* ---------- results ---------- */
 const results={audio:[],cover:[]};let uid=0;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -340,7 +356,7 @@ function rerender(){
     </div>`).join('');
   }
   $('#head-audio').hidden=!results.audio.length;
-  refreshSave();
+  refreshSave();applyPromo();
 }
 const find=s=>{const [k,id]=s.split(':');return [k,results[k].findIndex(r=>r.id==id)]};
 document.addEventListener('click',e=>{
