@@ -6,11 +6,11 @@ const PER_IP_PER_DAY = 4;
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'content-type': 'application/json', 'cache-control': 'no-store' } });
 
-async function countToday(request) {
+async function countToday(request, bucket = 'cover') {
   // Soft per-visitor limit using the edge cache (no database needed)
   const ip = request.headers.get('cf-connecting-ip') || 'x';
   const day = new Date().toISOString().slice(0, 10);
-  const key = new Request(`https://limit.streampack/${day}/${encodeURIComponent(ip)}`);
+  const key = new Request(`https://limit.streampack/${bucket}/${day}/${encodeURIComponent(ip)}`);
   const cache = caches.default;
   const hit = await cache.match(key);
   const n = hit ? parseInt(await hit.text(), 10) || 0 : 0;
@@ -61,10 +61,45 @@ async function cover(request, env) {
   }
 }
 
+const SCRIPT_PER_IP_PER_DAY = 10;
+async function script(request, env) {
+  if (!env.AI) return json({ error: 'unavailable' }, 503);
+  let b;
+  try { b = await request.json(); } catch (e) { return json({ error: 'bad_request' }, 400); }
+  const clip = (v, n) => String(v || '').trim().slice(0, n);
+  const title = clip(b.title, 80), genre = clip(b.genre, 40), mood = clip(b.mood, 80), about = clip(b.about, 300);
+  const platform = ['tiktok', 'reels', 'shorts', 'youtube'].includes(b.platform) ? b.platform : 'reels';
+  const lang = b.lang === 'it' ? 'Italian' : 'English';
+  if (!title) return json({ error: 'empty' }, 400);
+  const limit = await countToday(request, 'script');
+  if (limit.n >= SCRIPT_PER_IP_PER_DAY) return json({ error: 'limit', left: 0 }, 429);
+  const len = platform === 'youtube' ? '45-60 seconds' : '15-30 seconds';
+  const sys = `You are a music marketing video director. Write a promo video script for an independent artist's song, in ${lang}. Format exactly:
+HOOK (first 2 seconds): one line of on-screen text
+SCENES: 4 to 6 numbered scenes, each with: visual description, on-screen text (max 8 words), seconds
+CAPTION: a social caption with 3-5 hashtags
+CALL TO ACTION: one line
+Keep it ${len} total, vertical 9:16 unless YouTube. No preamble, no comments.`;
+  const user = `Song title: ${title}\nGenre: ${genre || 'n/a'}\nMood: ${mood || 'n/a'}\nWhat the song is about: ${about || 'n/a'}\nPlatform: ${platform}`;
+  try {
+    const r = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
+      messages: [{ role: 'system', content: sys }, { role: 'user', content: user }],
+      max_tokens: 700,
+    });
+    const out = (r && r.response || '').trim();
+    if (!out) return json({ error: 'failed' }, 502);
+    await limit.bump();
+    return json({ script: out, left: SCRIPT_PER_IP_PER_DAY - limit.n - 1 });
+  } catch (e) {
+    return json({ error: 'busy' }, 503);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/api/cover' && request.method === 'POST') return cover(request, env);
+    if (url.pathname === '/api/script' && request.method === 'POST') return script(request, env);
     return env.ASSETS.fetch(request);
   },
 };

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://streampack.pages.dev/sitemap.xml

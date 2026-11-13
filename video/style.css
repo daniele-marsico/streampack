@@ -1,0 +1,27 @@
+:root{--bg:#0B0A12;--surface:#1A1828;--surface2:#232036;--ink:#F4F2FA;--muted:#A39FB8;--line:#2E2A45;--grad:linear-gradient(135deg,#7C3AED 0%,#4F46E5 50%,#2563EB 100%)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:20px 18px 60px}
+a{color:#A78BFA}
+nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;font-weight:700}
+nav a{color:var(--ink);text-decoration:none}
+nav small a{color:var(--muted);font-weight:400}
+h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.15;margin:.2em 0 .4em}
+h2{font-size:1.35rem;margin:1.8em 0 .5em}
+h3{font-size:1.05rem;margin:1.2em 0 .3em}
+.lead{color:var(--muted);font-size:1.08rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin:18px 0}
+label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:11px;font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.row{grid-template-columns:1fr}}
+.btn{display:inline-block;border:0;border-radius:12px;padding:13px 18px;background:var(--grad);color:#fff;font-weight:700;font-size:1rem;text-decoration:none;cursor:pointer;margin-top:14px}
+.btn.ghost{background:var(--surface2);border:1px solid var(--line)}
+pre{white-space:pre-wrap;background:var(--surface2);border-radius:12px;padding:14px;font:14px/1.55 ui-monospace,Menlo,monospace;margin:14px 0 0}
+.msg{color:var(--muted);font-size:.9rem;margin-top:8px}
+.cta{border-color:rgba(124,58,237,.5)}
+.ad{font-size:.75rem;color:var(--muted);opacity:.8}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{border-bottom:1px solid var(--line);padding:9px 6px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+footer{margin-top:40px;color:var(--muted);font-size:.85rem}
