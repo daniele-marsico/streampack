@@ -143,6 +143,7 @@ Keep it ${len} total, vertical 9:16 unless YouTube. No preamble, no comments.`;
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname.startsWith('/google13bcbada3e5e0f65')) return new Response('google-site-verification: google13bcbada3e5e0f65.html', { headers: { 'content-type': 'text/html; charset=utf-8' } });
     if (url.pathname === '/api/cover' && request.method === 'POST') return cover(request, env);
     if (url.pathname === '/api/script' && request.method === 'POST') return script(request, env);
     if (url.pathname === '/api/tool' && request.method === 'POST') return tool(request, env);
