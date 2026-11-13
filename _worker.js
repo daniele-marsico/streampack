@@ -91,7 +91,7 @@ Keep it ${len} total, vertical 9:16 unless YouTube. No preamble, no comments.`;
     await limit.bump();
     return json({ script: out, left: SCRIPT_PER_IP_PER_DAY - limit.n - 1 });
   } catch (e) {
-    return json({ error: 'busy' }, 503);
+    return json({ error: 'busy', detail: String(e && e.message || e).slice(0, 200) }, 503);
   }
 }
 
