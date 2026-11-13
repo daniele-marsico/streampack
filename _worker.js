@@ -62,6 +62,55 @@ async function cover(request, env) {
 }
 
 const SCRIPT_PER_IP_PER_DAY = 10;
+const TEXT_MODELS = [
+  '@cf/meta/llama-3.3-70b-instruct-fp8-fast',
+  '@cf/meta/llama-4-scout-17b-16e-instruct',
+  '@cf/mistralai/mistral-small-3.1-24b-instruct',
+  '@cf/google/gemma-3-12b-it',
+  '@cf/meta/llama-3.2-3b-instruct',
+];
+async function chat(env, messages, max_tokens) {
+  let last;
+  for (const m of TEXT_MODELS) {
+    try {
+      const r = await env.AI.run(m, { messages, max_tokens });
+      const out = (r && (r.response || (r.choices && r.choices[0] && r.choices[0].message && r.choices[0].message.content)) || '').toString().trim();
+      if (out) return out;
+    } catch (e) { last = e; }
+  }
+  throw last || new Error('no output');
+}
+const TOOLS = {
+  shorts: (i) => [`You write scripts for YouTube Shorts, TikTok and Reels. Output in ${i.lang}. Format exactly:
+HOOK (0-2s): one spoken line
+SCRIPT: numbered lines to be spoken, each with [visual] in brackets
+ON-SCREEN TEXT: 3-5 short overlays
+CTA: one line
+Length: about ${i.seconds} seconds of speech. No preamble.`, `Topic: ${i.topic}\nAudience: ${i.audience || 'general'}\nTone: ${i.tone || 'energetic'}`],
+  hooks: (i) => [`You are a viral short-form video strategist. Output in ${i.lang}. Write 10 different opening hooks (max 12 words each) for a video, numbered, each labeled with its technique in parentheses (curiosity gap, bold claim, question, pattern interrupt, story, number, warning...). No preamble.`, `Video topic: ${i.topic}\nAudience: ${i.audience || 'general'}\nTone: ${i.tone || 'any'}`],
+  ideas: (i) => [`You are a YouTube strategist for faceless channels. Output in ${i.lang}. Give 10 video ideas for the niche, numbered. For each: a clickable title (max 60 chars), a one-line angle, and the format (Short or long). No preamble.`, `Niche: ${i.topic}\nAudience: ${i.audience || 'general'}\nTone: ${i.tone || 'any'}`],
+  prompts: (i) => [`You write prompts for AI video models (Sora, Veo, Kling, Runway). Output in English. Write 5 alternative prompts for the scene, numbered. Each prompt: subject and action, setting, camera movement, lens/shot type, lighting, mood, style, duration hint. 40-70 words each. No preamble.`, `Scene idea: ${i.topic}\nStyle: ${i.tone || 'cinematic'}\nAspect: ${i.audience || '9:16 vertical'}`],
+};
+async function tool(request, env) {
+  if (!env.AI) return json({ error: 'unavailable' }, 503);
+  let b;
+  try { b = await request.json(); } catch (e) { return json({ error: 'bad_request' }, 400); }
+  const make = TOOLS[b.tool];
+  const clip = (v, n) => String(v || '').trim().slice(0, n);
+  const i = { topic: clip(b.topic, 300), audience: clip(b.audience, 80), tone: clip(b.tone, 60),
+    seconds: [15, 30, 45, 60].includes(+b.seconds) ? +b.seconds : 30, lang: clip(b.lang, 30) || 'English' };
+  if (!make || i.topic.length < 3) return json({ error: 'empty' }, 400);
+  const limit = await countToday(request, 'tool');
+  if (limit.n >= 15) return json({ error: 'limit', left: 0 }, 429);
+  const [sys, user] = make(i);
+  try {
+    const out = await chat(env, [{ role: 'system', content: sys }, { role: 'user', content: user }], 900);
+    await limit.bump();
+    return json({ text: out, left: 15 - limit.n - 1 });
+  } catch (e) {
+    return json({ error: 'busy' }, 503);
+  }
+}
 async function script(request, env) {
   if (!env.AI) return json({ error: 'unavailable' }, 503);
   let b;
@@ -82,16 +131,12 @@ CALL TO ACTION: one line
 Keep it ${len} total, vertical 9:16 unless YouTube. No preamble, no comments.`;
   const user = `Song title: ${title}\nGenre: ${genre || 'n/a'}\nMood: ${mood || 'n/a'}\nWhat the song is about: ${about || 'n/a'}\nPlatform: ${platform}`;
   try {
-    const r = await env.AI.run('@cf/meta/llama-3.1-8b-instruct', {
-      messages: [{ role: 'system', content: sys }, { role: 'user', content: user }],
-      max_tokens: 700,
-    });
-    const out = (r && r.response || '').trim();
+    const out = await chat(env, [{ role: 'system', content: sys }, { role: 'user', content: user }], 700);
     if (!out) return json({ error: 'failed' }, 502);
     await limit.bump();
     return json({ script: out, left: SCRIPT_PER_IP_PER_DAY - limit.n - 1 });
   } catch (e) {
-    return json({ error: 'busy', detail: String(e && e.message || e).slice(0, 200) }, 503);
+    return json({ error: 'busy' }, 503);
   }
 }
 
@@ -100,6 +145,7 @@ export default {
     const url = new URL(request.url);
     if (url.pathname === '/api/cover' && request.method === 'POST') return cover(request, env);
     if (url.pathname === '/api/script' && request.method === 'POST') return script(request, env);
+    if (url.pathname === '/api/tool' && request.method === 'POST') return tool(request, env);
     return env.ASSETS.fetch(request);
   },
 };
