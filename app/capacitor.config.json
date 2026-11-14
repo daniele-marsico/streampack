@@ -1,0 +1,8 @@
+{
+  "appId": "it.controllinghub.streampack",
+  "appName": "StreamPack",
+  "webDir": "www",
+  "backgroundColor": "#0B0A12",
+  "ios": { "contentInset": "never", "backgroundColor": "#0B0A12" },
+  "plugins": { "CapacitorHttp": { "enabled": true } }
+}

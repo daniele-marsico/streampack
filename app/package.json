@@ -1,0 +1,19 @@
+{
+  "name": "streampack-app",
+  "private": true,
+  "version": "1.1.0",
+  "description": "App iOS di StreamPack: il sito incluso nell'app (funziona offline) + salvataggio e condivisione nativi",
+  "scripts": {
+    "www": "node copy-www.mjs",
+    "sync": "node copy-www.mjs && cap sync ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/share": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.6.0"
+  }
+}

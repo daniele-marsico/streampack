@@ -169,7 +169,7 @@ footer a{color:inherit}
 <script>
 /* Show the launch intro once per app session, only when running as the installed app */
 (function(){try{
-  var app=matchMedia('(display-mode: standalone)').matches||document.referrer.indexOf('android-app://')===0;
+  var app=matchMedia('(display-mode: standalone)').matches||document.referrer.indexOf('android-app://')===0||!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
   var seen=sessionStorage.getItem('sp-intro');
   if(!app||seen)return;
   sessionStorage.setItem('sp-intro','1');
@@ -374,7 +374,13 @@ document.addEventListener('click',e=>{
   if(dl){const [k,i]=find(dl.dataset.dl);if(i>=0)download(results[k][i].file)}
   if(cl){results[cl.dataset.clear].forEach(r=>r.dead=true);results[cl.dataset.clear]=[];rerender()}
 });
-function download(f){const a=document.createElement('a');const u=URL.createObjectURL(f);a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
+// App iOS/Android (Capacitor): il browser non può "scaricare", quindi si salva con il foglio di condivisione nativo (Salva in File, Foto, AirDrop…)
+const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+const b64=f=>new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=ko;r.readAsDataURL(f)});
+async function nativeSave(files){const {Filesystem,Share}=window.Capacitor.Plugins;const uris=[];
+  for(const f of files){const w=await Filesystem.writeFile({path:f.name,data:await b64(f),directory:'CACHE'});uris.push(w.uri)}
+  try{await Share.share({files:uris})}catch(e){}}
+function download(f){if(NATIVE)return nativeSave([f]);const a=document.createElement('a');const u=URL.createObjectURL(f);a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
 const ready=()=>view==='home'?[]:results[view].filter(r=>r.state==='ok');
 function refreshSave(){
   const list=ready();
@@ -382,9 +388,9 @@ function refreshSave(){
   $('#dl-all').textContent='↓ '+(list.length>1?`${t('downloadAll')} (${list.length})`:t('download'));
   const files=list.map(r=>r.file);
   let can=false;try{can=!!(navigator.canShare&&files.length&&navigator.canShare({files}))}catch(e){}
-  $('#share').hidden=!can;$('#share').textContent=t('share');
+  $('#share').hidden=!can||NATIVE;$('#share').textContent=t('share');
 }
-$('#dl-all').onclick=async()=>{for(const r of ready()){download(r.file);await new Promise(z=>setTimeout(z,500))}};
+$('#dl-all').onclick=async()=>{if(NATIVE)return nativeSave(ready().map(r=>r.file));for(const r of ready()){download(r.file);await new Promise(z=>setTimeout(z,500))}};
 $('#share').onclick=async()=>{try{await navigator.share({files:ready().map(r=>r.file)})}catch(e){}};
 const base=n=>n.replace(/\.[^.]+$/,'');
 
@@ -533,7 +539,7 @@ $('#ai-go').onclick=async()=>{
   results.cover.forEach(x=>{if(x.url)URL.revokeObjectURL(x.url)});
   const r={id:++uid,name:'cover-ai.png',state:'work'};results.cover=[r];rerender();
   try{
-    const res=await fetch('/api/cover',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({prompt})});
+    const res=await fetch((NATIVE?'https://streampack.pages.dev':'')+'/api/cover',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({prompt})});
     const j=await res.json().catch(()=>({}));
     if(!res.ok||!j.image){aiErr=j.error==='limit'?'lim':j.error==='busy'||j.error==='unavailable'?'busy':'fail';if(j.error==='limit')aiUse(0);throw new Error(j.error||res.status)}
     aiUse(Math.min(aiLeft()-1,j.left??AIMAX));
