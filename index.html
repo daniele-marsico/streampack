@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>StreamPack</title>
-<meta name="description" content="Convert audio and cover art to Spotify and distributor standards (DistroKid, RouteNote, TuneCore…), right from your phone.">
+<title>StreamPack – Free Audio Converter (MP4, M4A, WAV to FLAC, MP3) & 3000×3000 Cover Art for DistroKid</title>
+<meta name="description" content="Free audio converter for musicians: MP4, M4A, AAC, AIFF, OGG, WAV and MP3 to FLAC, WAV or MP3 320, plus cover art resized to 3000×3000 JPG. Ready for Spotify, DistroKid, RouteNote. No upload.">
+<link rel="canonical" href="https://streampack.pages.dev/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="StreamPack">
 <meta property="og:url" content="https://streampack.pages.dev/">
@@ -16,6 +17,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0B0A12">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "StreamPack", "alternateName": "StreamPack audio converter", "url": "https://streampack.pages.dev/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Android, Web", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["MP4 to MP3, WAV, FLAC", "M4A to MP3, WAV, FLAC", "WAV to FLAC and MP3", "MP3 to WAV", "AIFF to WAV", "Batch audio conversion", "Loudness normalization -14 LUFS", "Album cover art resize to 3000x3000 JPG", "AI cover art generation"], "description": "Free converter that gets your track and cover art ready for Spotify, Apple Music and distributors such as DistroKid, RouteNote and TuneCore. Files are processed on your device."}</script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -123,6 +125,7 @@ textarea:focus{outline:2px solid var(--v);border-color:transparent}
 #dl-all{background:var(--grad);color:#fff;box-shadow:0 10px 30px rgba(79,70,229,.45)}
 #share{flex:0 0 auto;background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
 .err{color:var(--warn)}
+.seo-links{color:var(--muted);font-size:12px;text-align:center;opacity:.75;margin:18px 0 8px;line-height:1.9}.seo-links a{color:inherit}
 footer{color:var(--muted);font-size:12px;text-align:center;opacity:.7}
 footer a{color:inherit}
 @media (prefers-reduced-motion:reduce){.bar i{animation:none;width:100%}.tile{transition:none}}
@@ -252,6 +255,7 @@ footer a{color:inherit}
     <div class="panel rules"><span class="lbl" data-t="rulesT"></span><ul id="rules"></ul></div>
   </section>
 
+  <nav class="seo-links" aria-label="Converters"><b>Free converters:</b> <a href="/convert/mp4-to-mp3/">MP4 to MP3</a> · <a href="/convert/mp4-to-wav/">MP4 to WAV</a> · <a href="/convert/m4a-to-mp3/">M4A to MP3</a> · <a href="/convert/m4a-to-wav/">M4A to WAV</a> · <a href="/convert/wav-to-flac/">WAV to FLAC</a> · <a href="/convert/wav-to-mp3/">WAV to MP3</a> · <a href="/convert/mp3-to-wav/">MP3 to WAV</a> · <a href="/convert/flac-to-mp3/">FLAC to MP3</a> · <a href="/convert/aiff-to-wav/">AIFF to WAV</a> · <a href="/convert/cover-art-3000x3000/">Cover art 3000×3000</a> · <a href="/convert/">all</a></nav>
   <footer><a href="/video/">🎬 Promo video script</a> · <a href="privacy.html" data-t="privacy"></a> · <a href="terms.html" data-t="terms"></a><br>MP3 encoding: <a href="https://lame.sourceforge.io" target="_blank" rel="noopener">LAME</a> (LGPL) · <span data-t="local"></span></footer>
 </div>
 
@@ -542,6 +546,11 @@ $('#ai-go').onclick=async()=>{
 };
 
 applyFmt();applyLang();applyPromo();
+/* deep link from converter pages: ?to=mp3|wav|flac opens audio with that format, ?go=cover opens cover */
+(()=>{const q=new URLSearchParams(location.search),to=q.get('to');
+ if(['mp3','wav','flac'].includes(to)){format=to;store.set('sp-fmt',format);applyFmt();show('audio')}
+ else if(q.get('go')==='cover')show('cover');
+ else if(q.get('go')==='audio')show('audio')})();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script>
 </body>
