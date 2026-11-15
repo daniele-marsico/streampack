@@ -7,11 +7,9 @@
 # Segreti (Settings → Secrets and variables → Actions), tutti facoltativi:
 #   TWA_KEYSTORE_B64, TWA_KEYSTORE_PASSWORD, TWA_KEY_ALIAS, TWA_KEY_PASSWORD, PLAY_SERVICE_ACCOUNT_JSON
 name: Android StreamPack
+# VECCHIA app (TWA): sostituita dall'app nativa in app/ (android.yml). Resta solo da avviare a mano.
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['android-twa/**', '.github/workflows/android-twa.yml']
 concurrency:
   group: android-twa
   cancel-in-progress: false

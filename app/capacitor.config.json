@@ -3,6 +3,25 @@
   "appName": "StreamPack",
   "webDir": "www",
   "backgroundColor": "#0B0A12",
-  "ios": { "contentInset": "never", "backgroundColor": "#0B0A12" },
-  "plugins": { "CapacitorHttp": { "enabled": true } }
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#0B0A12"
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
+    "SplashScreen": {
+      "launchShowDuration": 600,
+      "backgroundColor": "#0B0A12",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "backgroundColor": "#0B0A12",
+      "style": "DARK"
+    }
+  },
+  "android": {
+    "backgroundColor": "#0B0A12"
+  }
 }
