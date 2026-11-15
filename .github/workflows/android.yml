@@ -3,7 +3,7 @@
 # Il sito è incluso nell'app (funziona offline): si ricompila a ogni modifica del sito o di app/ (o a mano da Actions → Run workflow):
 #  1. compila l'AAB con numero di versione automatico (100 + numero della build, più alto della vecchia TWA)
 #  2. lo firma con la stessa chiave della TWA (stessi segreti): per Play è un normale aggiornamento
-#  3. lo carica come BOZZA nel test "StreamPack" (non va online finché non premi "Avvia implementazione")
+#  3. lo pubblica direttamente nel test "StreamPack" (i tester lo ricevono dopo la revisione di Google)
 # Segreti: TWA_KEYSTORE_B64, TWA_KEYSTORE_PASSWORD, TWA_KEY_ALIAS, TWA_KEY_PASSWORD, PLAY_SERVICE_ACCOUNT_JSON
 name: Android StreamPack (nativa)
 on:
@@ -63,4 +63,4 @@ jobs:
           packageName: it.controllinghub.streampack
           releaseFiles: out/StreamPack-${{ env.VERSION_CODE }}.aab
           track: StreamPack
-          status: draft
+          status: completed
