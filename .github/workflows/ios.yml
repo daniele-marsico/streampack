@@ -5,11 +5,10 @@
 # Segreti (Settings → Secrets and variables → Actions):
 #   APPLE_TEAM_ID, ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (contenuto del file .p8)
 name: iOS StreamPack
+# Per ora parte SOLO a mano (Actions → iOS StreamPack → Run workflow):
+# niente account Apple ancora. Quando ci sarà, rimettere il trigger "push".
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths: ['app/**', '.github/workflows/ios.yml', 'index.html', '*.js']
 concurrency:
   group: ios
   cancel-in-progress: false
