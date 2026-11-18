@@ -141,42 +141,6 @@ Keep it ${len} total, vertical 9:16 unless YouTube. No preamble, no comments.`;
   }
 }
 
-// Release Copilot (browser extension): genre, language, description and pitch for a release.
-const GENRES = ['Alternative', 'Blues', "Children's Music", 'Classical', 'Country', 'Dance', 'Electronic', 'Folk', 'Hip Hop/Rap', 'Indie', 'Jazz', 'Latin', 'Metal', 'Pop', 'R&B/Soul', 'Reggae', 'Rock', 'Singer/Songwriter', 'Soundtrack', 'World'];
-async function release(request, env) {
-  if (!env.AI) return json({ error: 'unavailable' }, 503);
-  let b;
-  try { b = await request.json(); } catch (e) { return json({ error: 'bad_request' }, 400); }
-  const clip = (v, n) => String(v || '').trim().slice(0, n);
-  const i = { artist: clip(b.artist, 80), title: clip(b.title, 120), type: clip(b.type, 10), about: clip(b.about, 500), lyrics: clip(b.lyrics, 1500), lang: b.lang === 'Italian' ? 'Italian' : 'English' };
-  if (!i.title && !i.about) return json({ error: 'empty' }, 400);
-  const limit = await countToday(request, 'release');
-  if (limit.n >= 20) return json({ error: 'limit', left: 0 }, 429);
-  const sys = `You help independent artists prepare a music release for distributors (DistroKid, RouteNote) and Spotify.
-Reply with ONLY a JSON object, no markdown, with these keys:
-"primaryGenre": one of ${JSON.stringify(GENRES)},
-"secondaryGenre": another one from the same list, or "",
-"language": the language of the lyrics in English (e.g. "Italian"), or "Instrumental",
-"mood": 3-5 comma-separated mood words in ${i.lang},
-"description": a 2-3 sentence release description for stores and press, in ${i.lang}, factual, no hype words like "masterpiece", no emojis,
-"pitch": a Spotify editorial pitch under 500 characters, in English, covering sound, story and comparable artists only if given.`;
-  const user = `Artist: ${i.artist || 'n/a'}\nTitle: ${i.title || 'n/a'}\nRelease type: ${i.type || 'single'}\nAbout / sound: ${i.about || 'n/a'}\nLyrics excerpt: ${i.lyrics || 'n/a'}`;
-  try {
-    const out = await chat(env, [{ role: 'system', content: sys }, { role: 'user', content: user }], 600);
-    const m = out.match(/\{[\s\S]*\}/);
-    const d = m ? JSON.parse(m[0]) : null;
-    if (!d) return json({ error: 'failed' }, 502);
-    const g = (v) => GENRES.find((x) => x.toLowerCase() === String(v || '').toLowerCase()) || '';
-    await limit.bump();
-    return json({
-      primaryGenre: g(d.primaryGenre), secondaryGenre: g(d.secondaryGenre), language: clip(d.language, 30),
-      mood: clip(d.mood, 120), description: clip(d.description, 700), pitch: clip(d.pitch, 500), left: 20 - limit.n - 1,
-    });
-  } catch (e) {
-    return json({ error: 'busy' }, 503);
-  }
-}
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -184,7 +148,6 @@ export default {
     if (url.pathname === '/api/cover' && request.method === 'POST') return cover(request, env);
     if (url.pathname === '/api/script' && request.method === 'POST') return script(request, env);
     if (url.pathname === '/api/tool' && request.method === 'POST') return tool(request, env);
-    if (url.pathname === '/api/release' && request.method === 'POST') return release(request, env);
     return env.ASSETS.fetch(request);
   },
 };
