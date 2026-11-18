@@ -112,6 +112,8 @@ h1{margin:0;font:800 36px/1.05 var(--display);letter-spacing:-.025em}
 .rules ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:4px;font-size:14px}
 .gen{border:0;border-radius:14px;padding:16px;background:var(--grad);color:#fff;font:800 18px var(--display);cursor:pointer}
 .gen:disabled{opacity:.5}
+input.artist{width:100%;font:16px/1.4 var(--body);color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+#toast{position:fixed;left:16px;right:16px;bottom:110px;max-width:520px;margin:0 auto;z-index:20;padding:14px 16px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);color:var(--ink);font-size:14px;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 textarea{width:100%;resize:vertical;font:16px/1.4 var(--body);color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px}
 textarea:focus{outline:2px solid var(--v);border-color:transparent}
 .note{color:var(--muted);font-size:13px}
@@ -224,6 +226,7 @@ footer a{color:inherit}
         <label class="sw"><input id="opt-loud" type="checkbox"><span></span></label>
       </div>
     </div>
+    <div class="panel"><span class="lbl" data-t="artistL"></span><input class="artist" data-ph="artistPh" autocomplete="off" maxlength="80"></div>
     <label class="pick">
       <strong data-t="pickAudio"></strong>
       <small data-t="pickAudioHint"></small>
@@ -238,6 +241,7 @@ footer a{color:inherit}
   <section id="v-cover" class="wrap" hidden>
     <button class="back" data-t="back"></button>
     <h1 data-t="cover"></h1>
+    <div class="panel"><span class="lbl" data-t="artistL"></span><input class="artist" data-ph="artistPh" autocomplete="off" maxlength="80"></div>
     <label class="pick">
       <strong data-t="pickCover"></strong>
       <small data-t="pickCoverHint"></small>
@@ -259,6 +263,7 @@ footer a{color:inherit}
   <footer><a href="/video/">🎬 Promo video script</a> · <a href="privacy.html" data-t="privacy"></a> · <a href="terms.html" data-t="terms"></a><br>MP3 encoding: <a href="https://lame.sourceforge.io" target="_blank" rel="noopener">LAME</a> (LGPL) · <span data-t="local"></span></footer>
 </div>
 
+<div id="toast" hidden></div>
 <div class="save" id="savebar" hidden><div><button id="dl-all" type="button"></button><button id="share" type="button" hidden></button></div></div>
 
 <script src="flac.js"></script>
@@ -309,10 +314,12 @@ cSt:"Estéreo",cPeak:"Pico abaixo de -1 dB",cPeakW:"Pico alto: pode distorcer",c
 rulesT:"Antes de enviar à distribuidora",rules:["Sem links, @redes, preços ou logos do Spotify/Apple","O texto da capa deve corresponder a artista e título","Sem imagens com direitos autorais de terceiros"],waTip:"Não envie a capa pelo WhatsApp, Telegram ou similares: eles comprimem e redimensionam a imagem, que deixa de cumprir os padrões das plataformas. Envie direto do celular ou transfira como arquivo (e-mail, Google Drive, cabo USB).",local:"Os arquivos não saem do seu celular"}
 };
 const X={"it": {"ai": "Oppure creala con l'AI", "aiPh": "Descrivi la copertina: es. tramonto viola su una città futuristica, stile neon", "gen": "✦ Genera copertina", "genW": "Sto creando la copertina…", "left": "Ancora {n} gratis oggi", "lim": "Hai usato le copertine gratuite di oggi. Riprova domani.", "busy": "Il servizio AI è al completo per oggi. Riprova domani.", "fail": "Generazione non riuscita. Riprova.", "privacy": "Privacy", "terms": "Condizioni d'uso"}, "en": {"ai": "Or create it with AI", "aiPh": "Describe your cover: e.g. purple sunset over a futuristic city, neon style", "gen": "✦ Generate cover", "genW": "Creating your cover…", "left": "{n} free left today", "lim": "You've used today's free covers. Try again tomorrow.", "busy": "The AI service is full for today. Try again tomorrow.", "fail": "Generation failed. Please try again.", "privacy": "Privacy", "terms": "Terms of use"}, "es": {"ai": "O créala con IA", "aiPh": "Describe la portada: p. ej. atardecer violeta sobre una ciudad futurista, estilo neón", "gen": "✦ Generar portada", "genW": "Creando la portada…", "left": "Te quedan {n} gratis hoy", "lim": "Ya usaste las portadas gratis de hoy. Vuelve mañana.", "busy": "El servicio de IA está completo hoy. Vuelve mañana.", "fail": "No se pudo generar. Inténtalo de nuevo.", "privacy": "Privacidad", "terms": "Condiciones de uso"}, "fr": {"ai": "Ou crée-la avec l'IA", "aiPh": "Décris ta pochette : ex. coucher de soleil violet sur une ville futuriste, style néon", "gen": "✦ Générer la pochette", "genW": "Création de la pochette…", "left": "Encore {n} gratuites aujourd'hui", "lim": "Tu as utilisé les pochettes gratuites du jour. Reviens demain.", "busy": "Le service IA est complet aujourd'hui. Reviens demain.", "fail": "Échec de la génération. Réessaie.", "privacy": "Confidentialité", "terms": "Conditions d'utilisation"}, "de": {"ai": "Oder mit KI erstellen", "aiPh": "Beschreibe dein Cover: z. B. violetter Sonnenuntergang über einer futuristischen Stadt, Neon-Stil", "gen": "✦ Cover erstellen", "genW": "Cover wird erstellt…", "left": "Heute noch {n} gratis", "lim": "Die Gratis-Cover für heute sind aufgebraucht. Morgen wieder.", "busy": "Der KI-Dienst ist heute ausgelastet. Morgen wieder.", "fail": "Erstellung fehlgeschlagen. Bitte erneut versuchen.", "privacy": "Datenschutz", "terms": "Nutzungsbedingungen"}, "pt": {"ai": "Ou crie com IA", "aiPh": "Descreva a capa: ex. pôr do sol roxo sobre uma cidade futurista, estilo neon", "gen": "✦ Gerar capa", "genW": "Criando a capa…", "left": "Ainda {n} grátis hoje", "lim": "Você usou as capas grátis de hoje. Tente amanhã.", "busy": "O serviço de IA está cheio hoje. Tente amanhã.", "fail": "Não foi possível gerar. Tente de novo.", "privacy": "Privacidade", "terms": "Termos de uso"}};for(const k in X)Object.assign(T[k],X[k]);
+const Y={"it": {"artistL": "Nome artista (per dare un nome chiaro ai file)", "artistPh": "Es. Daniele M", "savedTo": "Salvati in {f}. Li trovi subito nel selettore file del distributore, sotto \"Recenti\".", "tipPC": "Da PC: apri i download di Chrome (icona ↓ in alto a destra) e trascina i file direttamente nel riquadro di caricamento del distributore."}, "en": {"artistL": "Artist name (to give your files clear names)", "artistPh": "e.g. Daniele M", "savedTo": "Saved in {f}. You will find them right away in the distributor's file picker, under \"Recent\".", "tipPC": "On a computer: open Chrome downloads (↓ icon, top right) and drag the files straight into the distributor's upload box."}, "es": {"artistL": "Nombre del artista (para nombrar bien los archivos)", "artistPh": "p. ej. Daniele M", "savedTo": "Guardados en {f}. Los encontrarás enseguida en el selector de archivos de la distribuidora, en \"Recientes\".", "tipPC": "En el ordenador: abre las descargas de Chrome (icono ↓ arriba a la derecha) y arrastra los archivos directamente al recuadro de subida de la distribuidora."}, "fr": {"artistL": "Nom d'artiste (pour nommer clairement les fichiers)", "artistPh": "ex. Daniele M", "savedTo": "Enregistrés dans {f}. Tu les retrouves tout de suite dans le sélecteur de fichiers du distributeur, sous « Récents ».", "tipPC": "Sur ordinateur : ouvre les téléchargements de Chrome (icône ↓ en haut à droite) et glisse les fichiers directement dans la zone d'envoi du distributeur."}, "de": {"artistL": "Künstlername (für klare Dateinamen)", "artistPh": "z. B. Daniele M", "savedTo": "Gespeichert in {f}. Du findest sie sofort in der Dateiauswahl des Distributors unter „Zuletzt“.", "tipPC": "Am Computer: Öffne die Chrome-Downloads (↓-Symbol oben rechts) und zieh die Dateien direkt in das Upload-Feld des Distributors."}, "pt": {"artistL": "Nome do artista (para nomear bem os arquivos)", "artistPh": "ex. Daniele M", "savedTo": "Salvos em {f}. Você os encontra na hora no seletor de arquivos da distribuidora, em \"Recentes\".", "tipPC": "No computador: abra os downloads do Chrome (ícone ↓ no canto superior direito) e arraste os arquivos direto para a área de envio da distribuidora."}};for(const k in Y)Object.assign(T[k],Y[k]);
 const $=s=>document.querySelector(s);
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let lang=(()=>{const s=store.get('sp-lang');if(s&&T[s])return s;return 'en'})();
 let format=store.get('sp-fmt')||'flac';
+let artist=store.get('sp-artist')||'';
 const t=k=>T[lang][k];
 const fmt=(x,d=1)=>x.toLocaleString(lang,{minimumFractionDigits:d,maximumFractionDigits:d});
 function applyLang(){
@@ -328,6 +335,7 @@ $('#lang').onchange=e=>{lang=e.target.value;store.set('sp-lang',lang);applyLang(
 function applyFmt(){document.querySelectorAll('#fmt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===format))}
 document.querySelectorAll('#fmt button').forEach(b=>b.onclick=()=>{format=b.dataset.f;store.set('sp-fmt',format);applyFmt()});
 
+document.querySelectorAll('input.artist').forEach(inp=>{inp.value=artist;inp.oninput=()=>{artist=inp.value;store.set('sp-artist',artist);document.querySelectorAll('input.artist').forEach(o=>{if(o!==inp)o.value=artist});rerender()}});
 /* ---------- navigation ---------- */
 let view='home';
 function show(v){view=v;['home','audio','cover'].forEach(x=>$('#v-'+x).hidden=x!==v);refreshSave();scrollTo(0,0)}
@@ -356,7 +364,7 @@ const label=x=>typeof x==='function'?x():x;
 function rerender(){
   for(const k of ['audio','cover']){
     $('#list-'+k).innerHTML=results[k].map(r=>`<div class="card">
-      <div class="top"><div class="name">${esc(r.out||r.name)}</div><button class="x" data-rm="${k}:${r.id}" aria-label="${t('remove')}" title="${t('remove')}">✕</button></div>
+      <div class="top"><div class="name">${esc(r.state==='ok'?nameFor(k,r):(r.out||r.name))}</div><button class="x" data-rm="${k}:${r.id}" aria-label="${t('remove')}" title="${t('remove')}">✕</button></div>
       ${r.url?`<img class="prev" src="${r.url}" alt="">`:''}
       ${r.state==='work'?`<div class="state">${t('working')}</div><div class="bar"><i></i></div>`:''}
       ${r.state==='err'?`<div class="state err">${t('err')}</div>`:''}
@@ -371,27 +379,42 @@ const find=s=>{const [k,id]=s.split(':');return [k,results[k].findIndex(r=>r.id=
 document.addEventListener('click',e=>{
   const rm=e.target.closest('[data-rm]'),dl=e.target.closest('[data-dl]'),cl=e.target.closest('[data-clear]');
   if(rm){const [k,i]=find(rm.dataset.rm);if(i>=0){const r=results[k][i];r.dead=true;if(r.url)URL.revokeObjectURL(r.url);results[k].splice(i,1);rerender()}}
-  if(dl){const [k,i]=find(dl.dataset.dl);if(i>=0)download(results[k][i].file)}
+  if(dl){const [k,i]=find(dl.dataset.dl);if(i>=0){download(named(k,results[k][i]));if(!NATIVE&&!MOBILE)toast(t('tipPC'))}}
   if(cl){results[cl.dataset.clear].forEach(r=>r.dead=true);results[cl.dataset.clear]=[];rerender()}
 });
 // App iOS/Android (Capacitor): il browser non può "scaricare", quindi si salva con il foglio di condivisione nativo (Salva in File, Foto, AirDrop…)
 const NATIVE=!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const b64=f=>new Promise((ok,ko)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=ko;r.readAsDataURL(f)});
-async function nativeSave(files){const {Filesystem,Share}=window.Capacitor.Plugins;const uris=[];
-  for(const f of files){const w=await Filesystem.writeFile({path:f.name,data:await b64(f),directory:'CACHE'});uris.push(w.uri)}
+// Native app: save into Documents/StreamPack/<title>/ so the files are easy to find; if that fails, open the share sheet
+async function nativeSave(files,shareOnly){const {Filesystem,Share}=window.Capacitor.Plugins;
+  if(!shareOnly){const folder='StreamPack/'+(lastTitle()||'Release');let ok=true;
+    for(const f of files){try{await Filesystem.writeFile({path:folder+'/'+f.name,data:await b64(f),directory:'DOCUMENTS',recursive:true})}catch(e){ok=false;break}}
+    if(ok){toast(t('savedTo').replace('{f}',(lang==='it'?'Documenti/':'Documents/')+folder));return}}
+  const uris=[];for(const f of files){const w=await Filesystem.writeFile({path:f.name,data:await b64(f),directory:'CACHE'});uris.push(w.uri)}
   try{await Share.share({files:uris})}catch(e){}}
 function download(f){if(NATIVE)return nativeSave([f]);const a=document.createElement('a');const u=URL.createObjectURL(f);a.href=u;a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),60000)}
-const ready=()=>view==='home'?[]:results[view].filter(r=>r.state==='ok');
+// Clear file names for distributors: "Artist - Title.flac", "Artist - Title - cover.jpg"
+const clean=n=>base(n).replace(/[_]+/g,' ').replace(/[\s\-(]*\b(master(ed)?|final|mixdown|mix|v\d+)\b\)?\s*$/i,'').replace(/\s+/g,' ').trim()||base(n);
+const safe=x=>String(x).replace(/[\\/:*?"<>|]+/g,'').replace(/\s+/g,' ').trim();
+const lastTitle=()=>{const a=results.audio.find(x=>x.state==='ok');return a?safe(clean(a.name)):''};
+function nameFor(k,r){const a=safe(artist),pre=a?a+' - ':'';
+  if(k==='audio')return pre+safe(clean(r.name))+'.'+r.out.split('.').pop();
+  return pre+(lastTitle()||safe(clean(r.name)))+' - cover.jpg'}
+const named=(k,r)=>new File([r.file],nameFor(k,r),{type:r.file.type});
+const ready=()=>[...results.audio,...results.cover].filter(r=>r.state==='ok');
+const packFiles=()=>{const o=[];for(const k of ['audio','cover'])for(const r of results[k])if(r.state==='ok')o.push(named(k,r));return o};
+function toast(msg){const el=$('#toast');el.textContent=msg;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,9000)}
+const MOBILE=/Android|iPhone|iPad/i.test(navigator.userAgent);
 function refreshSave(){
   const list=ready();
   $('#savebar').hidden=!list.length;
   $('#dl-all').textContent='↓ '+(list.length>1?`${t('downloadAll')} (${list.length})`:t('download'));
   const files=list.map(r=>r.file);
-  let can=false;try{can=!!(navigator.canShare&&files.length&&navigator.canShare({files}))}catch(e){}
-  $('#share').hidden=!can||NATIVE;$('#share').textContent=t('share');
+  let can=NATIVE&&files.length>0;try{can=can||!!(navigator.canShare&&files.length&&navigator.canShare({files}))}catch(e){}
+  $('#share').hidden=!can;$('#share').textContent=t('share');
 }
-$('#dl-all').onclick=async()=>{if(NATIVE)return nativeSave(ready().map(r=>r.file));for(const r of ready()){download(r.file);await new Promise(z=>setTimeout(z,500))}};
-$('#share').onclick=async()=>{try{await navigator.share({files:ready().map(r=>r.file)})}catch(e){}};
+$('#dl-all').onclick=async()=>{if(NATIVE)return nativeSave(packFiles());for(const f of packFiles()){download(f);await new Promise(z=>setTimeout(z,500))}if(!MOBILE)toast(t('tipPC'))};
+$('#share').onclick=async()=>{if(NATIVE)return nativeSave(packFiles(),true);try{await navigator.share({files:packFiles()})}catch(e){}};
 const base=n=>n.replace(/\.[^.]+$/,'');
 
 /* ---------- AUDIO ---------- */
