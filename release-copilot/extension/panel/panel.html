@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Release Copilot</title>
+<link rel="stylesheet" href="panel.css">
+</head>
+<body>
+<header>
+  <img src="../icons/icon-48.png" alt="">
+  <div><b>Release Copilot</b><div class="muted" data-t="tagline"></div></div>
+</header>
+
+<section>
+  <h2 data-t="release"></h2>
+  <label><span data-t="artist"></span><input id="artist" required></label>
+  <div class="two">
+    <label><span data-t="type"></span>
+      <select id="type"><option value="single">Single</option><option value="ep">EP</option><option value="album">Album</option></select></label>
+    <label><span data-t="releaseDate"></span><input id="releaseDate" type="date"></label>
+  </div>
+  <label class="multi"><span data-t="releaseTitle"></span><input id="releaseTitle"></label>
+  <div class="two">
+    <label><span data-t="primaryGenre"></span><input id="primaryGenre" list="genres"></label>
+    <label><span data-t="secondaryGenre"></span><input id="secondaryGenre" list="genres"></label>
+  </div>
+  <div class="two">
+    <label><span data-t="language"></span><input id="language" list="langs"></label>
+    <label><span data-t="label"></span><input id="label"></label>
+  </div>
+  <div class="two">
+    <label><span data-t="copyrightYear"></span><input id="copyrightYear" inputmode="numeric" maxlength="4"></label>
+    <label><span data-t="copyrightOwner"></span><input id="copyrightOwner"></label>
+  </div>
+  <label><span data-t="aiUsage"></span>
+    <select id="aiUsage"><option value="none" data-t="aiNone"></option><option value="partial" data-t="aiPartial"></option><option value="full" data-t="aiFull"></option></select></label>
+  <label><span data-t="description"></span><textarea id="description" rows="4"></textarea></label>
+</section>
+
+<section>
+  <h2 data-t="tracks"></h2>
+  <div id="tracks"></div>
+  <button class="ghost" id="addTrack" data-t="addTrack"></button>
+</section>
+
+<section>
+  <h2>AI</h2>
+  <label><span data-t="about"></span><textarea id="about" rows="2"></textarea></label>
+  <button id="ai" data-t="aiGo"></button>
+  <div id="aiOut"></div>
+</section>
+
+<section>
+  <h2 data-t="checks"></h2>
+  <ul id="checks"></ul>
+</section>
+
+<section class="actions">
+  <p class="muted" data-t="howto"></p>
+  <div class="two">
+    <button class="ghost" id="export" data-t="export"></button>
+    <label class="ghost btn"><span data-t="import"></span><input type="file" id="import" accept=".json" hidden></label>
+  </div>
+  <button class="ghost danger" id="clear" data-t="clear"></button>
+</section>
+
+<template id="trackTpl">
+  <div class="track">
+    <div class="trackHead"><b class="num"></b><button class="link del" data-t="remove"></button></div>
+    <label><span data-t="title"></span><input data-f="title"></label>
+    <div class="two">
+      <label><span data-t="version"></span><input data-f="version"></label>
+      <label><span data-t="featuring"></span><input data-f="featuring"></label>
+    </div>
+    <label><span data-t="songwriters"></span><input data-f="songwriters"></label>
+    <label><span data-t="producers"></span><input data-f="producers"></label>
+    <div class="two">
+      <label><span>ISRC</span><input data-f="isrc"></label>
+      <label><span data-t="previewStart"></span><input data-f="previewStart" placeholder="0:30"></label>
+    </div>
+    <div class="checks2">
+      <label class="inline"><input type="checkbox" data-f="explicit"> <span data-t="explicit"></span></label>
+      <label class="inline"><input type="checkbox" data-f="instrumental"> <span data-t="instrumental"></span></label>
+    </div>
+    <label><span data-t="lyrics"></span><textarea data-f="lyrics" rows="3"></textarea></label>
+  </div>
+</template>
+
+<datalist id="genres">
+  <option>Alternative</option><option>Blues</option><option>Children's Music</option><option>Classical</option><option>Country</option>
+  <option>Dance</option><option>Electronic</option><option>Folk</option><option>Hip Hop/Rap</option><option>Indie</option>
+  <option>Jazz</option><option>Latin</option><option>Metal</option><option>Pop</option><option>R&amp;B/Soul</option>
+  <option>Reggae</option><option>Rock</option><option>Singer/Songwriter</option><option>Soundtrack</option><option>World</option>
+</datalist>
+<datalist id="langs">
+  <option>English</option><option>Italian</option><option>Spanish</option><option>French</option><option>German</option>
+  <option>Portuguese</option><option>Instrumental</option>
+</datalist>
+<script src="panel.js"></script>
+</body>
+</html>
