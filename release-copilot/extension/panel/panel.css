@@ -23,3 +23,15 @@ button:disabled { opacity: .6; cursor: wait; }
 #checks li.ok { color: var(--accent); } #checks li.warn { color: var(--warn); } #checks li.bad { color: var(--bad); }
 .sugg { border: 1px dashed var(--line); border-radius: 8px; padding: 8px; margin-top: 8px; }
 .sugg button { display: inline-block; width: auto; padding: 4px 10px; margin: 4px 4px 0 0; font-size: 12px; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px 12px 0; }
+.tabs button { margin: 0; background: var(--card); color: var(--muted); border: 1px solid var(--line); }
+.tabs button.on { background: var(--fg); color: var(--bg); }
+a.btn { text-decoration: none; }
+button.big { font-size: 15px; padding: 14px; margin: 10px 0 6px; }
+.fhead { margin: 14px 0 4px; font-weight: 600; }
+.field { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+.field:hover { border-color: var(--line); }
+.field .k { width: 42%; color: var(--muted); font-size: 12px; } .field .v { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.field.done { opacity: .5; } .field.done .v::before { content: '✓ '; color: var(--accent); }
+.field.cur { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.field.file .v, .field.empty .v { color: var(--muted); font-style: italic; }

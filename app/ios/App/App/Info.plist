@@ -9,9 +9,9 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>StreamPack saves the converted cover art to your photos.</string>
+	<string>UploadMySong saves the converted cover art to your photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>StreamPack opens the image you choose to convert it into cover art.</string>
+	<string>UploadMySong opens the image you choose to convert it into cover art.</string>
 	<key>CFBundleAllowMixedLocalizations</key>
 	<true/>
   <key>CAPACITOR_DEBUG</key>
@@ -19,7 +19,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>StreamPack</string>
+        <string>UploadMySong</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>

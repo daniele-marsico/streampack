@@ -1,5 +1,5 @@
 // Side panel: the release package, prepared once and reused on every distributor.
-const API = 'https://streampack.pages.dev/api/release';
+const API = 'https://streampack.pages.dev/api/release'; // also served at uploadmysong.controllinghub.com
 const IT = /^it\b/i.test(navigator.language || '');
 const L = IT ? {
   tagline: 'Prepara una volta, compila ovunque', release: 'Release', artist: 'Nome artista', type: 'Tipo', releaseDate: 'Data di uscita',
@@ -186,3 +186,62 @@ chrome.storage.local.get('pkg', (o) => {
   pkg = normalize(o.pkg);
   renderRelease(); renderTracks(); renderChecks();
 });
+
+// ---------- Tab 2: guided copy into the distributor's form ----------
+Object.assign(L, IT ? {
+  tabPrep: '1 · Prepara', tabUp: '2 · Carica', dist: 'Distributore', copyHow: 'Premi il pulsante verde, incolla nel campo del sito (Ctrl+V) e ripeti. Puoi anche toccare un campo qualsiasi per copiarlo.',
+  restart: 'Ricomincia da capo', open: (n) => `Apri ${n} ↗`, next: (l) => `📋 Copia: ${l}`, allDone: '✓ Tutto copiato. Controlla e invia sul sito.',
+  fileHint: 'carica il file convertito', pick: (v) => `seleziona: ${v}`, empty: '(vuoto, salta)', copied: 'Copiato', release: 'Release',
+} : {
+  tabPrep: '1 · Prepare', tabUp: '2 · Upload', dist: 'Distributor', copyHow: 'Press the green button, paste into the site field (Ctrl+V) and repeat. You can also tap any field to copy it.',
+  restart: 'Start over', open: (n) => `Open ${n} ↗`, next: (l) => `📋 Copy: ${l}`, allDone: '✓ All copied. Check and submit on the site.',
+  fileHint: 'upload the converted file', pick: (v) => `select: ${v}`, empty: '(empty, skip)', copied: 'Copied', release: 'Release',
+});
+L.howto = IT ? 'Quando è tutto pronto passa a "2 · Carica".' : 'When everything is ready, go to "2 · Upload".';
+L.tagline = IT ? 'Il tuo brano pronto per ogni distributore' : 'Your song, ready for every distributor';
+['tabPrep', 'tabUp', 'dist', 'copyHow', 'restart', 'howto', 'tagline'].forEach((k) => document.querySelectorAll(`[data-t="${k}"]`).forEach((n) => (n.textContent = L[k])));
+
+const sel = $('#dist');
+Object.entries(DISTRIBUTORS).forEach(([k, d]) => sel.add(new Option(d.name, k)));
+let done = new Set();
+function rows() {
+  const d = DISTRIBUTORS[sel.value];
+  const out = [{ head: L.release }];
+  d.release.forEach(([k, label, fn, kind]) => out.push({ id: 'r.' + k, label, kind, value: kind === 'file' ? '' : String(fn(pkg, null, IT) || '') }));
+  pkg.tracks.forEach((t, i) => {
+    out.push({ head: `${IT ? 'Traccia' : 'Track'} ${i + 1}${t.title ? ' · ' + t.title : ''}` });
+    d.track.forEach(([k, label, fn, kind]) => out.push({ id: `t${i}.${k}`, label, kind, value: kind === 'file' ? '' : String(fn(pkg, t, IT) || '') }));
+  });
+  return out;
+}
+const copyable = (r) => r.id && !r.kind && r.value;
+function renderUp() {
+  const d = DISTRIBUTORS[sel.value];
+  $('#openDist').href = d.url;
+  $('#openDist').textContent = L.open(d.name);
+  const list = rows();
+  const nxt = list.find((r) => copyable(r) && !done.has(r.id));
+  $('#next').textContent = nxt ? L.next(nxt.label) : L.allDone;
+  $('#next').disabled = !nxt;
+  $('#next').onclick = () => nxt && copy(nxt);
+  $('#fields').innerHTML = list.map((r) => r.head ? `<div class="fhead">${esc(r.head)}</div>` : `<div class="field ${r.kind === 'file' ? 'file' : ''} ${!r.value && r.kind !== 'file' ? 'empty' : ''} ${done.has(r.id) ? 'done' : ''} ${nxt && nxt.id === r.id ? 'cur' : ''}" data-id="${r.id}"><span class="k">${esc(r.label)}</span><span class="v">${esc(r.kind === 'file' ? L.fileHint : r.kind === 'choice' ? L.pick(r.value) : r.value || L.empty)}</span></div>`).join('');
+  $('#fields').querySelectorAll('.field').forEach((el) => {
+    const r = list.find((x) => x.id === el.dataset.id);
+    if (copyable(r)) el.onclick = () => copy(r);
+  });
+}
+async function copy(r) {
+  try { await navigator.clipboard.writeText(r.value); } catch (e) {
+    const ta = document.createElement('textarea'); ta.value = r.value; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  done.add(r.id);
+  renderUp();
+  const b = $('#next'); const old = b.textContent; b.textContent = `✓ ${L.copied}: ${r.label}`;
+  setTimeout(() => { if (b.textContent.startsWith('✓ ' + L.copied)) renderUp(); }, 900);
+}
+sel.onchange = () => { done = new Set(); chrome.storage.local.set({ dist: sel.value }); renderUp(); };
+$('#restart').onclick = () => { done = new Set(); renderUp(); };
+const show = (up) => { $('#up').hidden = !up; $('#prep').hidden = up; $('#tabUp').classList.toggle('on', up); $('#tabPrep').classList.toggle('on', !up); if (up) renderUp(); window.scrollTo(0, 0); };
+$('#tabUp').onclick = () => show(true);
+$('#tabPrep').onclick = () => show(false);
+chrome.storage.local.get('dist', (o) => { if (o.dist && DISTRIBUTORS[o.dist]) sel.value = o.dist; });

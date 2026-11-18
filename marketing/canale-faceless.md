@@ -14,7 +14,7 @@ Obiettivo: Shorts e TikTok fatti con VideoGen che mostrano il prodotto all'opera
 
 ```
 Made with VideoGen (AI script → video): https://videogen.io/ai-video-generator?fp_ref=daniele-7d9afb
-Free script & hook generators: https://streampack.pages.dev/tools/
+Free script & hook generators: https://uploadmysong.controllinghub.com/tools/
 Affiliate link: I may earn a commission at no extra cost to you.
 #aivideo #facelessyoutube #contentcreator
 ```

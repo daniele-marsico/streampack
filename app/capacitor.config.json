@@ -1,6 +1,6 @@
 {
   "appId": "it.controllinghub.streampack",
-  "appName": "StreamPack",
+  "appName": "UploadMySong",
   "webDir": "www",
   "backgroundColor": "#0B0A12",
   "ios": {
