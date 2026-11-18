@@ -3,26 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UploadMySong</title>
+<title>Release Copilot</title>
 <link rel="stylesheet" href="panel.css">
 </head>
 <body>
 <header>
   <img src="../icons/icon-48.png" alt="">
-  <div><b>UploadMySong</b><div class="muted" data-t="tagline"></div></div>
+  <div><b>Release Copilot</b><div class="muted" data-t="tagline"></div></div>
 </header>
-<nav class="tabs"><button id="tabPrep" class="on" data-t="tabPrep"></button><button id="tabUp" data-t="tabUp"></button></nav>
-<div id="up" hidden>
-<section>
-  <label><span data-t="dist"></span><select id="dist"></select></label>
-  <a id="openDist" class="btn ghost" target="_blank" rel="noopener"></a>
-  <button id="next" class="big"></button>
-  <p class="muted" data-t="copyHow"></p>
-  <div id="fields"></div>
-  <button class="ghost" id="restart" data-t="restart"></button>
-</section>
-</div>
-<div id="prep">
 
 <section>
   <h2 data-t="release"></h2>
@@ -77,7 +65,6 @@
   <button class="ghost danger" id="clear" data-t="clear"></button>
 </section>
 
-</div>
 <template id="trackTpl">
   <div class="track">
     <div class="trackHead"><b class="num"></b><button class="link del" data-t="remove"></button></div>
@@ -110,7 +97,6 @@
   <option>English</option><option>Italian</option><option>Spanish</option><option>French</option><option>German</option>
   <option>Portuguese</option><option>Instrumental</option>
 </datalist>
-<script src="distributors.js"></script>
 <script src="panel.js"></script>
 </body>
 </html>

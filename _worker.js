@@ -1,4 +1,4 @@
-// UploadMySong server: serves the app and generates AI covers with Cloudflare Workers AI.
+// StreamPack server: serves the app and generates AI covers with Cloudflare Workers AI.
 // Costs: runs only on the Workers FREE plan (10,000 neurons/day). When the daily
 // allowance is used up, Cloudflare returns an error and nothing is billed.
 const PER_IP_PER_DAY = 4;

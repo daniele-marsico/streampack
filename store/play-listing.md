@@ -1,13 +1,12 @@
-# UploadMySong – Scheda Google Play (testi pronti da incollare)
+# StreamPack – Scheda Google Play (testi pronti da incollare)
 
 ## Dati app
-- Nome app (titolo su Play, max 30): UploadMySong: Music Release
-- Nome sotto l'icona: UploadMySong
+- Nome app: StreamPack
 - Pacchetto: it.controllinghub.streampack
 - Categoria: Musica e audio
 - Email di contatto: controllinghub@gmail.com
-- Sito web: https://uploadmysong.controllinghub.com
-- Privacy policy: https://uploadmysong.controllinghub.com/privacy.html
+- Sito web: https://streampack.pages.dev
+- Privacy policy: https://streampack.pages.dev/privacy.html
 - Gratuita, senza pubblicità, senza acquisti in-app (per ora)
 
 ## Italiano (lingua predefinita)
@@ -16,7 +15,7 @@
 Audio e copertina pronti per Spotify, DistroKid e RouteNote. Dal telefono.
 
 **Descrizione completa**
-Pubblichi musica su Spotify, Apple Music e le altre piattaforme? UploadMySong prepara i tuoi file nel formato giusto in pochi secondi, direttamente dal telefono. Niente PC, niente siti diversi, niente file persi nei download.
+Pubblichi musica su Spotify, Apple Music e le altre piattaforme? StreamPack prepara i tuoi file nel formato giusto in pochi secondi, direttamente dal telefono. Niente PC, niente siti diversi, niente file persi nei download.
 
 AUDIO
 • Converte MP3, M4A, FLAC, WAV, OGG e anche MP4
@@ -39,7 +38,7 @@ I tuoi brani e le tue immagini non lasciano mai il telefono: la conversione avvi
 
 Disponibile in italiano, inglese, spagnolo, francese, tedesco e portoghese.
 
-UploadMySong non è affiliata a Spotify, Apple, DistroKid, RouteNote, TuneCore, CD Baby o Amuse.
+StreamPack non è affiliata a Spotify, Apple, DistroKid, RouteNote, TuneCore, CD Baby o Amuse.
 
 ## English
 
@@ -47,7 +46,7 @@ UploadMySong non è affiliata a Spotify, Apple, DistroKid, RouteNote, TuneCore, 
 Audio and cover art ready for Spotify, DistroKid and RouteNote. From your phone.
 
 **Full description**
-Releasing music on Spotify, Apple Music and other platforms? UploadMySong gets your files into the right format in seconds, straight from your phone. No PC, no hopping between websites, no hunting through downloads.
+Releasing music on Spotify, Apple Music and other platforms? StreamPack gets your files into the right format in seconds, straight from your phone. No PC, no hopping between websites, no hunting through downloads.
 
 AUDIO
 • Converts MP3, M4A, FLAC, WAV, OGG and even MP4
@@ -70,7 +69,7 @@ Your tracks and images never leave your phone: conversion happens on the device.
 
 Available in English, Italian, Spanish, French, German and Portuguese.
 
-UploadMySong is not affiliated with Spotify, Apple, DistroKid, RouteNote, TuneCore, CD Baby or Amuse.
+StreamPack is not affiliated with Spotify, Apple, DistroKid, RouteNote, TuneCore, CD Baby or Amuse.
 
 ## Grafica (cartella store/)
 - Icona 512×512: icon-512.png
@@ -93,7 +92,7 @@ Questionario IARC: categoria "Utilità/Produttività", nessuna violenza, sesso, 
 ## Tester (test chiuso: 12 persone per 14 giorni)
 
 **Messaggio per amici e musicisti (IT)**
-Ciao! Sto lanciando UploadMySong, un'app gratuita che prepara audio e copertina per Spotify/DistroKid/RouteNote direttamente dal telefono. Per pubblicarla su Google Play mi servono 12 tester Android per 14 giorni. Ti basta: 1) entrare nel gruppo [LINK GRUPPO], 2) aprire [LINK TEST] e installarla, 3) tenerla installata 14 giorni (se la usi e mi dai un parere, ancora meglio). Grazie!
+Ciao! Sto lanciando StreamPack, un'app gratuita che prepara audio e copertina per Spotify/DistroKid/RouteNote direttamente dal telefono. Per pubblicarla su Google Play mi servono 12 tester Android per 14 giorni. Ti basta: 1) entrare nel gruppo [LINK GRUPPO], 2) aprire [LINK TEST] e installarla, 3) tenerla installata 14 giorni (se la usi e mi dai un parere, ancora meglio). Grazie!
 
 **Message for communities (EN)**
-Hi! I built UploadMySong, a free app that gets your audio and cover art ready for Spotify/DistroKid/RouteNote from your phone (FLAC/MP3 320, 3000×3000 covers, AI cover generator). I need Android testers for Google Play's 14-day closed test. Join [GROUP LINK], then install from [TEST LINK] and keep it for 14 days. Happy to test your app back!
+Hi! I built StreamPack, a free app that gets your audio and cover art ready for Spotify/DistroKid/RouteNote from your phone (FLAC/MP3 320, 3000×3000 covers, AI cover generator). I need Android testers for Google Play's 14-day closed test. Join [GROUP LINK], then install from [TEST LINK] and keep it for 14 days. Happy to test your app back!
