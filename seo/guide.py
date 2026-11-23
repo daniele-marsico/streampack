@@ -531,7 +531,7 @@ def pagina(k, l):
 </head><body><div class="w">
 <nav><a href="/?lang={l}">StreamPack</a><small>{lingue}</small></nav>
 {"".join(corpo)}
-<footer><a href="/?lang={l}">StreamPack</a> · <a href="/privacy.html">Privacy</a><br>{e(c["foot"])}</footer></div></body></html>
+<footer><a href="/?lang={l}">StreamPack</a> · <a href="/privacy">Privacy</a><br>{e(c["foot"])}</footer></div></body></html>
 """
 
 
