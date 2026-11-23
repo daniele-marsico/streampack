@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url><loc>https://streampack.pages.dev/</loc></url>
+<url><loc>https://streampack.pages.dev/</loc><lastmod>2026-11-23</lastmod></url>
 <url><loc>https://streampack.pages.dev/video/</loc></url>
 <url><loc>https://streampack.pages.dev/video/en/</loc></url>
 <url><loc>https://streampack.pages.dev/video/videogen-vs-invideo-vs-pictory.html</loc></url>
@@ -31,4 +31,28 @@
 <url><loc>https://streampack.pages.dev/convert/ogg-to-mp3/</loc></url>
 <url><loc>https://streampack.pages.dev/convert/ogg-to-wav/</loc></url>
 <url><loc>https://streampack.pages.dev/convert/cover-art-3000x3000/</loc></url>
+<url><loc>https://streampack.pages.dev/album-cover-size/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/it/dimensioni-copertina-album/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/es/tamano-portada-album/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/de/albumcover-groesse/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/fr/taille-pochette-album/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/pt/tamanho-capa-album/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/cover-art-rejected/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/it/copertina-rifiutata/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/es/portada-rechazada/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/de/cover-abgelehnt/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/fr/pochette-refusee/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/pt/capa-rejeitada/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/audio-format-for-distrokid/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/it/formato-audio-distrokid/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/es/formato-audio-distrokid/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/de/audioformat-distrokid/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/fr/format-audio-distrokid/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/pt/formato-audio-distrokid/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/spotify-lufs/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/it/lufs-spotify/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/es/lufs-spotify/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/de/lufs-spotify/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/fr/lufs-spotify/</loc><lastmod>2026-11-23</lastmod></url>
+<url><loc>https://streampack.pages.dev/pt/lufs-spotify/</loc><lastmod>2026-11-23</lastmod></url>
 </urlset>

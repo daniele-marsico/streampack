@@ -1,0 +1,33 @@
+# Avvisa Bing e gli altri motori IndexNow (Bing alimenta anche Copilot e la ricerca di ChatGPT) quando cambiano le pagine.
+# Google non usa IndexNow: per Google valgono sitemap e Search Console.
+name: IndexNow
+on:
+  push:
+    branches: [main]
+    paths: ["**/*.html", "sitemap.xml", "!app/**"]
+  workflow_dispatch:
+jobs:
+  invia:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Attendi la pubblicazione su Cloudflare Pages
+        run: sleep 150
+      - name: Invia gli URL cambiati
+        env:
+          KEY: "9de1f33850176ab4c99fb93d4cc616dc"
+          SITO: "https://streampack.pages.dev"
+          PRIMA: ${{ github.event.before }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ -z "$PRIMA" ] || git diff --name-only "$PRIMA" HEAD | grep -q '^sitemap.xml$'; then
+            curl -s "$SITO/sitemap.xml" | grep -o '<loc>[^<]*' | sed 's/<loc>//' > urls.txt
+          else
+            git diff --name-only "$PRIMA" HEAD | grep -E '(^|/)index\.html$' | grep -v '^app/' | sed -E 's#index\.html$##; s#^#'"$SITO"'/#' > urls.txt
+          fi
+          cat urls.txt
+          [ -s urls.txt ] || { echo "Nessuna pagina da inviare"; exit 0; }
+          jq -n --arg key "$KEY" --arg sito "$SITO" --rawfile u urls.txt '{host: ($sito | sub("https://"; "")), key: $key, keyLocation: ($sito + "/" + $key + ".txt"), urlList: ($u | split("\n") | map(select(length > 0)))}' > body.json
+          codice=$(curl -s -o risposta.txt -w "%{http_code}" -H "Content-Type: application/json; charset=utf-8" -X POST https://api.indexnow.org/indexnow --data @body.json)
+          echo "IndexNow: HTTP $codice"; cat risposta.txt
+          case "$codice" in 200|202) ;; *) exit 1 ;; esac
