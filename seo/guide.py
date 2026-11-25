@@ -16,6 +16,12 @@ SLUG = {
 }
 APRI = {"size": "go=cover", "reject": "go=cover", "audio": "to=wav", "lufs": "go=audio&lufs=1"}
 
+# Strumenti gratuiti (pagine generate da seo/checkers.py), linkati da ogni guida: slug e nome breve per lingua
+CHECK = {
+ "lufs": {"en": ("lufs-checker", "LUFS checker"), "it": ("it/misura-lufs", "Misura LUFS"), "es": ("es/medidor-lufs", "Medidor de LUFS"), "de": ("de/lufs-messen", "LUFS messen"), "fr": ("fr/mesurer-lufs", "Mesurer les LUFS"), "pt": ("pt/medidor-lufs", "Medidor de LUFS")},
+ "isrc": {"en": ("isrc-checker", "ISRC checker"), "it": ("it/verifica-isrc", "Verifica ISRC"), "es": ("es/verificar-isrc", "Verificar ISRC"), "de": ("de/isrc-pruefen", "ISRC prüfen"), "fr": ("fr/verifier-isrc", "Vérifier un ISRC"), "pt": ("pt/verificar-isrc", "Verificar ISRC")},
+}
+
 C = {  # testi comuni
  "en": {"free": "Free · no sign-up · no ads · files stay on your device", "other": "More guides", "conv": "All audio converters", "foot": "StreamPack is not affiliated with Spotify, Apple, DistroKid or the other services named.", "check": "Requirements change: check your distributor's help page before releasing."},
  "it": {"free": "Gratis · senza registrazione · senza pubblicità · i file restano sul tuo dispositivo", "other": "Altre guide", "conv": "Tutti i convertitori audio", "foot": "StreamPack non è affiliata a Spotify, Apple, DistroKid né agli altri servizi citati.", "check": "I requisiti possono cambiare: controlla la pagina di aiuto del tuo distributore prima di pubblicare."},
@@ -515,7 +521,7 @@ def pagina(k, l):
         else: corpo.extend(f"<p>{e(x)}</p>" for x in v)
     corpo.append("<h2>FAQ</h2>" + "".join(f"<h3>{e(q)}</h3><p>{e(a)}</p>" for q, a in d["faq"]))
     corpo.append(f'<div class="card cta"><p style="margin-top:0"><b>{e(d["h1"])}</b></p>{cta}</div>')
-    altre = " · ".join(f'<a href="/{SLUG[x][l]}/">{e(G[x, l]["nav"])}</a>' for x in SLUG if x != k)
+    altre = " · ".join([f'<a href="/{CHECK[x][l][0]}/">{e(CHECK[x][l][1])}</a>' for x in CHECK] + [f'<a href="/{SLUG[x][l]}/">{e(G[x, l]["nav"])}</a>' for x in SLUG if x != k])
     corpo.append(f"<h2>{e(c['other'])}</h2><p>{altre} · <a href=\"/convert/\">{e(c['conv'])}</a></p>")
     ld_app = {"@context": "https://schema.org", "@type": "WebApplication", "name": "StreamPack", "url": url(k, l), "inLanguage": l,
               "description": d["desc"], "applicationCategory": "MultimediaApplication", "operatingSystem": "Any (browser, Android)",

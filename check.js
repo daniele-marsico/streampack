@@ -283,5 +283,29 @@
     return Math.sqrt(Math.max(0, s2 / n - m * m));
   };
 
+  /* ---------- 8. Whole-file report (browser only): used by the LUFS checker pages ---------- */
+  SP.analyze = async function (file) {
+    const ab = await file.arrayBuffer();
+    const h = SP.header(new Uint8Array(ab.slice(0, 65536)));
+    const OAC = root.OfflineAudioContext || root.webkitOfflineAudioContext;
+    const sr = Math.max(8000, Math.min(48000, h.sr || 48000)); // hi-res is measured at 48 kHz: same LUFS, much less memory on a phone
+    let buf = null;
+    if (h.kind === 'aiff') {
+      const p = SP.decodeAIFF(new Uint8Array(ab));
+      if (p) {
+        const n = Math.max(1, p.chans[0].length), ctx = new OAC(p.ch, Math.max(1, Math.ceil(n * sr / p.sr)), sr), b = ctx.createBuffer(p.ch, n, p.sr);
+        p.chans.forEach((c, i) => b.getChannelData(i).set(c));
+        if (p.sr === sr) buf = b;
+        else { const s = ctx.createBufferSource(); s.buffer = b; s.connect(ctx.destination); s.start(); buf = await ctx.startRendering(); }
+      }
+    }
+    if (!buf) buf = await new Promise((res, rej) => { const c = new OAC(2, 1, sr); const q = c.decodeAudioData(ab, res, rej); if (q && q.then) q.then(res, rej); });
+    const rate = buf.sampleRate, L = buf.getChannelData(0), R = buf.numberOfChannels > 1 ? buf.getChannelData(1) : L;
+    const sc = SP.scan(L, R), ed = SP.edges(L, R, rate), tp = SP.truePeak(L, R, sc.peak);
+    const k = SP.kWeight(L, R, rate), lo = SP.loudness(k[0], k[1], rate);
+    return { h, ext: SP.extOf(file.name), ch: h.ch || buf.numberOfChannels, dur: L.length / rate, peak: sc.peak, clips: sc.clips, dc: sc.dc,
+      silent: ed.silent, lead: ed.lead, tail: ed.tail, tp, I: lo.I, LRA: lo.LRA };
+  };
+
   if (typeof module === 'object' && module.exports) module.exports = SP; else root.SPCheck = SP;
 })(typeof self !== 'undefined' ? self : this);
