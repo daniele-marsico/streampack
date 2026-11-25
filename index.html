@@ -5,7 +5,7 @@
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>StreamPack – Cover Art & Audio Ready for Spotify, DistroKid & Apple Music (Free)</title>
-<meta name="description" content="Free app for musicians: cover art resized to 3000×3000 JPG and audio converted to WAV, FLAC or MP3 320 (44.1 kHz, 16-bit, optional -14 LUFS), ready for Spotify, Apple Music, DistroKid, TuneCore and CD Baby. Files stay on your device.">
+<meta name="description" content="Free app for musicians: checks your master and cover art before upload (true peak, clipping, silence, mono, CMYK, ISRC/UPC) and fixes them: audio to WAV, FLAC or MP3 320 (44.1 kHz, 16-bit, optional -14 LUFS / -1 dBTP), cover to 3000×3000 JPG. Ready for Spotify, DistroKid, TuneCore, CD Baby. Files stay on your device.">
 <link rel="canonical" href="https://streampack.pages.dev/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="StreamPack">
@@ -17,7 +17,7 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#0B0A12">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "StreamPack", "alternateName": "StreamPack audio converter", "url": "https://streampack.pages.dev/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Android, Web", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["MP4 to MP3, WAV, FLAC", "M4A to MP3, WAV, FLAC", "WAV to FLAC and MP3", "MP3 to WAV", "AIFF to WAV", "Batch audio conversion", "Loudness normalization -14 LUFS", "Album cover art resize to 3000x3000 JPG", "AI cover art generation"], "description": "Free converter that gets your track and cover art ready for Spotify, Apple Music and distributors such as DistroKid, RouteNote and TuneCore. Files are processed on your device."}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "StreamPack", "alternateName": "StreamPack audio converter", "url": "https://streampack.pages.dev/", "applicationCategory": "MultimediaApplication", "operatingSystem": "Android, Web", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "featureList": ["MP4 to MP3, WAV, FLAC", "M4A to MP3, WAV, FLAC", "WAV to FLAC and MP3", "MP3 to WAV", "AIFF to WAV", "Batch audio conversion", "Loudness normalization -14 LUFS with -1 dBTP true peak limit", "Release readiness check: true peak, loudness range, clipping, silence, DC offset, real file format", "ISRC and UPC/EAN barcode validator", "Cover art check: CMYK, transparency, blank one-colour covers", "Album cover art resize to 3000x3000 JPG", "AI cover art generation"], "description": "Free checker and converter that gets your track and cover art ready for Spotify, Apple Music and distributors such as DistroKid, RouteNote and TuneCore. Files are processed on your device."}</script>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -112,7 +112,15 @@ h1{margin:0;font:800 36px/1.05 var(--display);letter-spacing:-.025em}
 .rules ul{margin:0;padding-left:18px;color:var(--muted);display:grid;gap:4px;font-size:14px}
 .gen{border:0;border-radius:14px;padding:16px;background:var(--grad);color:#fff;font:800 18px var(--display);cursor:pointer}
 .gen:disabled{opacity:.5}
-input.artist{width:100%;font:16px/1.4 var(--body);color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+input.artist,input.code-in{width:100%;font:16px/1.4 var(--body);color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:8px}
+input.code-in{font-family:var(--mono);letter-spacing:.04em;text-transform:uppercase}
+.sub{font:700 11px/1 var(--body);color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.codes summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:6px}
+.codes summary::-webkit-details-marker{display:none}
+.codes summary .lbl::before{content:"▸ ";color:var(--v)}
+.codes[open] summary .lbl::before{content:"▾ "}
+.codes label{display:block;font-weight:600;font-size:14px}.codes label+label{margin-top:10px}.codes label .note{display:block;margin-top:6px}
+.note.ok{color:var(--ok)}
 #toast{position:fixed;left:16px;right:16px;bottom:110px;max-width:520px;margin:0 auto;z-index:20;padding:14px 16px;border-radius:14px;background:var(--surface2);border:1px solid var(--line);color:var(--ink);font-size:14px;line-height:1.4;box-shadow:0 10px 30px rgba(0,0,0,.4)}
 textarea{width:100%;resize:vertical;font:16px/1.4 var(--body);color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px}
 textarea:focus{outline:2px solid var(--v);border-color:transparent}
@@ -225,6 +233,10 @@ footer a{color:inherit}
         <div><b data-t="opt"></b><small data-t="optSub"></small></div>
         <label class="sw"><input id="opt-loud" type="checkbox"><span></span></label>
       </div>
+      <div class="row">
+        <div><b data-t="optTrim"></b><small data-t="optTrimSub"></small></div>
+        <label class="sw"><input id="opt-trim" type="checkbox"><span></span></label>
+      </div>
     </div>
     <div class="panel"><span class="lbl" data-t="artistL"></span><input class="artist" data-ph="artistPh" autocomplete="off" maxlength="80"></div>
     <label class="pick">
@@ -234,6 +246,11 @@ footer a{color:inherit}
     </label>
     <div class="listhead" id="head-audio" hidden><span data-t="files"></span><button class="link" data-clear="audio" data-t="clear"></button></div>
     <div class="list" id="list-audio"></div>
+    <details class="panel codes" id="codes">
+      <summary><span class="lbl" data-t="cdT"></span><small class="note" data-t="cdSub"></small></summary>
+      <label><span data-t="isrcL"></span><input id="in-isrc" class="code-in" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="24" placeholder="IT-A1B-25-00001"><small class="note" id="msg-isrc"></small></label>
+      <label><span data-t="upcL"></span><input id="in-upc" class="code-in" inputmode="numeric" autocomplete="off" maxlength="20" placeholder="196871234567"><small class="note" id="msg-upc"></small></label>
+    </details>
     <a class="panel promo" id="promo-audio" hidden href="https://videogen.io/ai-video-generator?fp_ref=daniele-7d9afb" target="_blank" rel="sponsored noopener"><span class="lbl" data-p="pT"></span><b data-p="pH"></b><small data-p="pS"></small><span class="pcta" data-p="pC"></span><small class="pad" data-p="pAd"></small></a>
   </section>
 
@@ -267,55 +284,119 @@ footer a{color:inherit}
 <div id="toast" hidden></div>
 <div class="save" id="savebar" hidden><div><button id="dl-all" type="button"></button><button id="share" type="button" hidden></button></div></div>
 
+<script src="check.js"></script>
 <script src="flac.js"></script>
 <script src="lame.min.js"></script>
 <script>
 const T={
-it:{hero:'Il tuo brano, <span>pronto per le piattaforme</span>.',tag:`Converte audio e copertina negli standard di Spotify e dei distributori: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Dal telefono, in un tocco.`,
+it:{hero:'Il tuo brano, <span>pronto per le piattaforme</span>.',tag:`Controlla e converte audio e copertina negli standard di Spotify e dei distributori: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Dal telefono, in un tocco.`,
 audio:"Audio",cover:"Copertina",back:"‹ Indietro",format:"Formato di uscita",rec:"consigliato",
 pickAudio:"Scegli i brani",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… anche più file insieme",opt:"Volume ottimizzato per Spotify",optSub:"-14 LUFS, picco massimo -1 dB",
 pickCover:"Scegli l'immagine",pickCoverHint:"Anche creata con l'AI: la portiamo noi a 3000 × 3000",ai:"Genera la copertina con l'AI",soon:"In arrivo",
 files:"File convertiti",clear:"Svuota",remove:"Rimuovi",working:"Conversione in corso…",download:"Scarica",downloadAll:"Scarica tutto",share:"Condividi",err:"Questo file non si apre su questo telefono",
-cSt:"Stereo",cPeak:"Picco sotto -1 dB",cPeakW:"Picco alto: possibile distorsione",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Sotto 10 MB",cSq:"Ritagliata quadrata",cLow:"Immagine piccola: potrebbe sembrare sfocata",
+cSt:"Stereo",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Sotto 10 MB",cSq:"Ritagliata quadrata",cLow:"Immagine piccola: potrebbe sembrare sfocata",
 rulesT:"Prima di caricare sul distributore",rules:["Niente link, @social, prezzi o loghi di Spotify/Apple","Il testo in copertina deve corrispondere ad artista e titolo","Niente immagini protette da copyright di altri"],waTip:"Non inviare la copertina con WhatsApp, Telegram o simili: comprimono e ridimensionano l'immagine, che non rispetta più gli standard delle piattaforme. Caricala direttamente dal telefono o trasferiscila come file (email, Google Drive, cavo USB).",local:"I file restano sul tuo telefono"},
-en:{hero:'Your track, <span>ready for every platform</span>.',tag:`Converts audio and cover art to the standards of Spotify and the distributors: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. From your phone, in one tap.`,
+en:{hero:'Your track, <span>ready for every platform</span>.',tag:`Checks and converts audio and cover art to the standards of Spotify and the distributors: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. From your phone, in one tap.`,
 audio:"Audio",cover:"Cover art",back:"‹ Back",format:"Output format",rec:"recommended",
 pickAudio:"Choose tracks",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… several files at once",opt:"Spotify-ready loudness",optSub:"-14 LUFS, peak max -1 dB",
 pickCover:"Choose image",pickCoverHint:"AI-made images welcome: we take them to 3000 × 3000",ai:"Generate cover with AI",soon:"Coming soon",
 files:"Converted files",clear:"Clear",remove:"Remove",working:"Converting…",download:"Download",downloadAll:"Download all",share:"Share",err:"This file can't be opened on this phone",
-cSt:"Stereo",cPeak:"Peak below -1 dB",cPeakW:"High peak: may distort",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Under 10 MB",cSq:"Cropped square",cLow:"Small image: may look blurry",
+cSt:"Stereo",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Under 10 MB",cSq:"Cropped square",cLow:"Small image: may look blurry",
 rulesT:"Before uploading to your distributor",rules:["No links, @handles, prices or Spotify/Apple logos","Text on the cover must match artist and title","No copyrighted images from others"],waTip:"Don't send the cover through WhatsApp, Telegram or similar apps: they compress and resize the image, so it no longer meets platform standards. Upload it straight from your phone or transfer it as a file (email, Google Drive, USB cable).",local:"Files never leave your phone"},
-es:{hero:'Tu canción, <span>lista para las plataformas</span>.',tag:`Convierte audio y portada a los estándares de Spotify y las distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Desde el móvil, en un toque.`,
+es:{hero:'Tu canción, <span>lista para las plataformas</span>.',tag:`Revisa y convierte audio y portada a los estándares de Spotify y las distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Desde el móvil, en un toque.`,
 audio:"Audio",cover:"Portada",back:"‹ Atrás",format:"Formato de salida",rec:"recomendado",
 pickAudio:"Elige las canciones",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… varios archivos a la vez",opt:"Volumen listo para Spotify",optSub:"-14 LUFS, pico máximo -1 dB",
 pickCover:"Elige la imagen",pickCoverHint:"También creada con IA: la llevamos a 3000 × 3000",ai:"Genera la portada con IA",soon:"Próximamente",
 files:"Archivos convertidos",clear:"Vaciar",remove:"Quitar",working:"Convirtiendo…",download:"Descargar",downloadAll:"Descargar todo",share:"Compartir",err:"Este archivo no se abre en este móvil",
-cSt:"Estéreo",cPeak:"Pico bajo -1 dB",cPeakW:"Pico alto: posible distorsión",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada cuadrada",cLow:"Imagen pequeña: puede verse borrosa",
+cSt:"Estéreo",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada cuadrada",cLow:"Imagen pequeña: puede verse borrosa",
 rulesT:"Antes de subirla a la distribuidora",rules:["Sin enlaces, @redes, precios ni logos de Spotify/Apple","El texto debe coincidir con artista y título","Sin imágenes con copyright de otros"],waTip:"No envíes la portada por WhatsApp, Telegram o similares: comprimen y redimensionan la imagen y deja de cumplir los estándares de las plataformas. Súbela directamente desde el móvil o pásala como archivo (email, Google Drive, cable USB).",local:"Los archivos no salen de tu móvil"},
-fr:{hero:'Ton morceau, <span>prêt pour les plateformes</span>.',tag:`Convertit audio et pochette aux normes de Spotify et des distributeurs : <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Depuis ton téléphone, en un geste.`,
+fr:{hero:'Ton morceau, <span>prêt pour les plateformes</span>.',tag:`Vérifie et convertit audio et pochette aux normes de Spotify et des distributeurs : <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Depuis ton téléphone, en un geste.`,
 audio:"Audio",cover:"Pochette",back:"‹ Retour",format:"Format de sortie",rec:"conseillé",
 pickAudio:"Choisir les morceaux",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… plusieurs fichiers à la fois",opt:"Volume prêt pour Spotify",optSub:"-14 LUFS, crête max -1 dB",
 pickCover:"Choisir l'image",pickCoverHint:"Même créée par IA : on la passe en 3000 × 3000",ai:"Générer la pochette avec l'IA",soon:"Bientôt",
 files:"Fichiers convertis",clear:"Vider",remove:"Retirer",working:"Conversion…",download:"Télécharger",downloadAll:"Tout télécharger",share:"Partager",err:"Ce fichier ne s'ouvre pas sur ce téléphone",
-cSt:"Stéréo",cPeak:"Crête sous -1 dB",cPeakW:"Crête élevée : distorsion possible",cSize:"3000 × 3000",cJpg:"JPG RVB",cWeight:"Moins de 10 Mo",cSq:"Recadrée carrée",cLow:"Petite image : risque de flou",
+cSt:"Stéréo",cSize:"3000 × 3000",cJpg:"JPG RVB",cWeight:"Moins de 10 Mo",cSq:"Recadrée carrée",cLow:"Petite image : risque de flou",
 rulesT:"Avant l'envoi au distributeur",rules:["Pas de liens, @réseaux, prix ni logos Spotify/Apple","Le texte doit correspondre à l'artiste et au titre","Pas d'images protégées appartenant à d'autres"],waTip:"N'envoie pas la pochette par WhatsApp, Telegram ou autres : ils compressent et redimensionnent l'image, qui ne respecte plus les standards des plateformes. Mets-la en ligne directement depuis ton téléphone ou transfère-la en fichier (e-mail, Google Drive, câble USB).",local:"Les fichiers restent sur ton téléphone"},
-de:{hero:'Dein Song, <span>bereit für alle Plattformen</span>.',tag:`Wandelt Audio und Cover in die Standards von Spotify und den Distributoren um: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Am Handy, mit einem Tipp.`,
+de:{hero:'Dein Song, <span>bereit für alle Plattformen</span>.',tag:`Prüft Audio und Cover und bringt sie auf die Standards von Spotify und den Distributoren: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Am Handy, mit einem Tipp.`,
 audio:"Audio",cover:"Cover",back:"‹ Zurück",format:"Ausgabeformat",rec:"empfohlen",
 pickAudio:"Songs wählen",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… auch mehrere Dateien",opt:"Spotify-Lautstärke",optSub:"-14 LUFS, Spitze max. -1 dB",
 pickCover:"Bild wählen",pickCoverHint:"Auch KI-Bilder: wir machen 3000 × 3000 daraus",ai:"Cover mit KI erstellen",soon:"Bald",
 files:"Umgewandelte Dateien",clear:"Leeren",remove:"Entfernen",working:"Wird umgewandelt…",download:"Herunterladen",downloadAll:"Alle laden",share:"Teilen",err:"Diese Datei lässt sich auf diesem Handy nicht öffnen",
-cSt:"Stereo",cPeak:"Spitze unter -1 dB",cPeakW:"Hohe Spitze: mögliche Verzerrung",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Unter 10 MB",cSq:"Quadratisch zugeschnitten",cLow:"Kleines Bild: kann unscharf wirken",
+cSt:"Stereo",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Unter 10 MB",cSq:"Quadratisch zugeschnitten",cLow:"Kleines Bild: kann unscharf wirken",
 rulesT:"Vor dem Hochladen beim Distributor",rules:["Keine Links, @Handles, Preise oder Spotify/Apple-Logos","Text auf dem Cover muss zu Artist und Titel passen","Keine urheberrechtlich geschützten fremden Bilder"],waTip:"Schick das Cover nicht über WhatsApp, Telegram o. Ä.: Sie komprimieren und verkleinern das Bild, dann erfüllt es die Plattform-Standards nicht mehr. Lade es direkt vom Handy hoch oder übertrage es als Datei (E-Mail, Google Drive, USB-Kabel).",local:"Deine Dateien bleiben auf dem Handy"},
-pt:{hero:'Sua faixa, <span>pronta para as plataformas</span>.',tag:`Converte áudio e capa para os padrões do Spotify e das distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Pelo celular, em um toque.`,
+pt:{hero:'Sua faixa, <span>pronta para as plataformas</span>.',tag:`Verifica e converte áudio e capa para os padrões do Spotify e das distribuidoras: <b>DistroKid</b>, <b>RouteNote</b>, <b>TuneCore</b>, <b>CD Baby</b>. Pelo celular, em um toque.`,
 audio:"Áudio",cover:"Capa",back:"‹ Voltar",format:"Formato de saída",rec:"recomendado",
 pickAudio:"Escolher faixas",pickAudioHint:"MP3, M4A, FLAC, WAV, OGG… vários arquivos de uma vez",opt:"Volume pronto para Spotify",optSub:"-14 LUFS, pico máximo -1 dB",
 pickCover:"Escolher imagem",pickCoverHint:"Feita com IA também: levamos para 3000 × 3000",ai:"Gerar capa com IA",soon:"Em breve",
 files:"Arquivos convertidos",clear:"Limpar",remove:"Remover",working:"Convertendo…",download:"Baixar",downloadAll:"Baixar tudo",share:"Compartilhar",err:"Este arquivo não abre neste celular",
-cSt:"Estéreo",cPeak:"Pico abaixo de -1 dB",cPeakW:"Pico alto: pode distorcer",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada quadrada",cLow:"Imagem pequena: pode ficar borrada",
+cSt:"Estéreo",cSize:"3000 × 3000",cJpg:"JPG RGB",cWeight:"Menos de 10 MB",cSq:"Recortada quadrada",cLow:"Imagem pequena: pode ficar borrada",
 rulesT:"Antes de enviar à distribuidora",rules:["Sem links, @redes, preços ou logos do Spotify/Apple","O texto da capa deve corresponder a artista e título","Sem imagens com direitos autorais de terceiros"],waTip:"Não envie a capa pelo WhatsApp, Telegram ou similares: eles comprimem e redimensionam a imagem, que deixa de cumprir os padrões das plataformas. Envie direto do celular ou transfira como arquivo (e-mail, Google Drive, cabo USB).",local:"Os arquivos não saem do seu celular"}
 };
 const X={"it": {"ai": "Oppure creala con l'AI", "aiPh": "Descrivi la copertina: es. tramonto viola su una città futuristica, stile neon", "gen": "✦ Genera copertina", "genW": "Sto creando la copertina…", "left": "Ancora {n} gratis oggi", "lim": "Hai usato le copertine gratuite di oggi. Riprova domani.", "busy": "Il servizio AI è al completo per oggi. Riprova domani.", "fail": "Generazione non riuscita. Riprova.", "privacy": "Privacy", "terms": "Condizioni d'uso"}, "en": {"ai": "Or create it with AI", "aiPh": "Describe your cover: e.g. purple sunset over a futuristic city, neon style", "gen": "✦ Generate cover", "genW": "Creating your cover…", "left": "{n} free left today", "lim": "You've used today's free covers. Try again tomorrow.", "busy": "The AI service is full for today. Try again tomorrow.", "fail": "Generation failed. Please try again.", "privacy": "Privacy", "terms": "Terms of use"}, "es": {"ai": "O créala con IA", "aiPh": "Describe la portada: p. ej. atardecer violeta sobre una ciudad futurista, estilo neón", "gen": "✦ Generar portada", "genW": "Creando la portada…", "left": "Te quedan {n} gratis hoy", "lim": "Ya usaste las portadas gratis de hoy. Vuelve mañana.", "busy": "El servicio de IA está completo hoy. Vuelve mañana.", "fail": "No se pudo generar. Inténtalo de nuevo.", "privacy": "Privacidad", "terms": "Condiciones de uso"}, "fr": {"ai": "Ou crée-la avec l'IA", "aiPh": "Décris ta pochette : ex. coucher de soleil violet sur une ville futuriste, style néon", "gen": "✦ Générer la pochette", "genW": "Création de la pochette…", "left": "Encore {n} gratuites aujourd'hui", "lim": "Tu as utilisé les pochettes gratuites du jour. Reviens demain.", "busy": "Le service IA est complet aujourd'hui. Reviens demain.", "fail": "Échec de la génération. Réessaie.", "privacy": "Confidentialité", "terms": "Conditions d'utilisation"}, "de": {"ai": "Oder mit KI erstellen", "aiPh": "Beschreibe dein Cover: z. B. violetter Sonnenuntergang über einer futuristischen Stadt, Neon-Stil", "gen": "✦ Cover erstellen", "genW": "Cover wird erstellt…", "left": "Heute noch {n} gratis", "lim": "Die Gratis-Cover für heute sind aufgebraucht. Morgen wieder.", "busy": "Der KI-Dienst ist heute ausgelastet. Morgen wieder.", "fail": "Erstellung fehlgeschlagen. Bitte erneut versuchen.", "privacy": "Datenschutz", "terms": "Nutzungsbedingungen"}, "pt": {"ai": "Ou crie com IA", "aiPh": "Descreva a capa: ex. pôr do sol roxo sobre uma cidade futurista, estilo neon", "gen": "✦ Gerar capa", "genW": "Criando a capa…", "left": "Ainda {n} grátis hoje", "lim": "Você usou as capas grátis de hoje. Tente amanhã.", "busy": "O serviço de IA está cheio hoje. Tente amanhã.", "fail": "Não foi possível gerar. Tente de novo.", "privacy": "Privacidade", "terms": "Termos de uso"}};for(const k in X)Object.assign(T[k],X[k]);
 const Y={"it": {"artistL": "Nome artista (per dare un nome chiaro ai file)", "artistPh": "Es. Nova Lane", "savedTo": "Salvati in {f}. Li trovi subito nel selettore file del distributore, sotto \"Recenti\".", "tipPC": "Da PC: apri i download di Chrome (icona ↓ in alto a destra) e trascina i file direttamente nel riquadro di caricamento del distributore."}, "en": {"artistL": "Artist name (to give your files clear names)", "artistPh": "e.g. Nova Lane", "savedTo": "Saved in {f}. You will find them right away in the distributor's file picker, under \"Recent\".", "tipPC": "On a computer: open Chrome downloads (↓ icon, top right) and drag the files straight into the distributor's upload box."}, "es": {"artistL": "Nombre del artista (para nombrar bien los archivos)", "artistPh": "p. ej. Nova Lane", "savedTo": "Guardados en {f}. Los encontrarás enseguida en el selector de archivos de la distribuidora, en \"Recientes\".", "tipPC": "En el ordenador: abre las descargas de Chrome (icono ↓ arriba a la derecha) y arrastra los archivos directamente al recuadro de subida de la distribuidora."}, "fr": {"artistL": "Nom d'artiste (pour nommer clairement les fichiers)", "artistPh": "ex. Nova Lane", "savedTo": "Enregistrés dans {f}. Tu les retrouves tout de suite dans le sélecteur de fichiers du distributeur, sous « Récents ».", "tipPC": "Sur ordinateur : ouvre les téléchargements de Chrome (icône ↓ en haut à droite) et glisse les fichiers directement dans la zone d'envoi du distributeur."}, "de": {"artistL": "Künstlername (für klare Dateinamen)", "artistPh": "z. B. Nova Lane", "savedTo": "Gespeichert in {f}. Du findest sie sofort in der Dateiauswahl des Distributors unter „Zuletzt“.", "tipPC": "Am Computer: Öffne die Chrome-Downloads (↓-Symbol oben rechts) und zieh die Dateien direkt in das Upload-Feld des Distributors."}, "pt": {"artistL": "Nome do artista (para nomear bem os arquivos)", "artistPh": "ex. Nova Lane", "savedTo": "Salvos em {f}. Você os encontra na hora no seletor de arquivos da distribuidora, em \"Recentes\".", "tipPC": "No computador: abra os downloads do Chrome (ícone ↓ no canto superior direito) e arraste os arquivos direto para a área de envio da distribuidora."}};for(const k in Y)Object.assign(T[k],Y[k]);
+/* checker: what's wrong with the original file, and what StreamPack fixed */
+const Z={
+it:{chkOrig:"File originale",chkOut:"File pronto",optTrim:"Taglia i silenzi",optTrimSub:"Toglie i secondi vuoti prima e dopo il brano",
+xMis:"Si chiama .{e} ma in realtà è {k}",xLossy:"{k} è compresso: se hai il master WAV o FLAC, usa quello",xMono:"Mono → stereo",
+xClip:"Clipping nel master ({n} punti): va sistemato nel mix, la conversione non lo ripara",xSil:"Il file è silenzioso",
+xLead:"{s} s di silenzio all'inizio",xTail:"{s} s di silenzio alla fine",xTrimHint:"attiva «Taglia i silenzi»",xTrimmed:"Silenzi tagliati ({s} s)",xDC:"DC offset corretto",
+
+cPeak:"True peak sotto -1 dB",cPeakW:"True peak sopra -1 dB: attiva il volume per Spotify",
+cCmyk:"CMYK → RGB",cAlpha:"Trasparenza → sfondo bianco",cFlat:"Quasi tutta di un colore: rischia il rifiuto come copertina generica",
+cdT:"Controlla ISRC e UPC/EAN",cdSub:"Facoltativo: scopri subito se il distributore li rifiuterebbe. Non li hai? Quasi tutti i distributori li assegnano gratis.",
+isrcL:"ISRC del brano",upcL:"UPC / EAN della release",isrcOk:"ISRC valido · {p}",isrcLen:"L'ISRC ha 12 caratteri: paese (2 lettere), codice registrante (3), anno (2), numero (5)",isrcFmt:"Formato non valido. Esempio: IT-A1B-25-00001",
+upcOk:"Codice {t} valido",upcLen:"Servono 12 cifre (UPC) o 13 (EAN)",upcFmt:"Solo cifre",upcChk:"Cifra di controllo sbagliata: l'ultima dovrebbe essere {d}. Ricopialo dal distributore."},
+en:{chkOrig:"Original file",chkOut:"Ready file",optTrim:"Trim silence",optTrimSub:"Removes empty seconds before and after the track",
+xMis:"Named .{e} but it's really {k}",xLossy:"{k} is compressed: if you have the WAV or FLAC master, use that",xMono:"Mono → stereo",
+xClip:"Clipping in the master ({n} spots): fix it in the mix, converting can't repair it",xSil:"The file is silent",
+xLead:"{s} s of silence at the start",xTail:"{s} s of silence at the end",xTrimHint:"turn on “Trim silence”",xTrimmed:"Silence trimmed ({s} s)",xDC:"DC offset removed",
+
+cPeak:"True peak below -1 dB",cPeakW:"True peak above -1 dB: turn on Spotify-ready loudness",
+cCmyk:"CMYK → RGB",cAlpha:"Transparency → white background",cFlat:"Almost one flat colour: may be rejected as generic cover art",
+cdT:"Check ISRC and UPC/EAN",cdSub:"Optional: see right away if your distributor would reject them. No codes? Most distributors assign them for free.",
+isrcL:"Track ISRC",upcL:"Release UPC / EAN",isrcOk:"Valid ISRC · {p}",isrcLen:"An ISRC has 12 characters: country (2 letters), registrant (3), year (2), number (5)",isrcFmt:"Invalid format. Example: US-S1Z-25-00001",
+upcOk:"Valid {t} barcode",upcLen:"Must be 12 digits (UPC) or 13 (EAN)",upcFmt:"Digits only",upcChk:"Wrong check digit: the last one should be {d}. Copy it again from your distributor."},
+es:{chkOrig:"Archivo original",chkOut:"Archivo listo",optTrim:"Recortar silencios",optTrimSub:"Quita los segundos vacíos antes y después de la canción",
+xMis:"Se llama .{e} pero en realidad es {k}",xLossy:"{k} está comprimido: si tienes el máster WAV o FLAC, usa ese",xMono:"Mono → estéreo",
+xClip:"Clipping en el máster ({n} puntos): arréglalo en la mezcla, la conversión no lo repara",xSil:"El archivo está en silencio",
+xLead:"{s} s de silencio al inicio",xTail:"{s} s de silencio al final",xTrimHint:"activa «Recortar silencios»",xTrimmed:"Silencios recortados ({s} s)",xDC:"DC offset corregido",
+
+cPeak:"True peak bajo -1 dB",cPeakW:"True peak sobre -1 dB: activa el volumen para Spotify",
+cCmyk:"CMYK → RGB",cAlpha:"Transparencia → fondo blanco",cFlat:"Casi de un solo color: puede ser rechazada como portada genérica",
+cdT:"Comprueba ISRC y UPC/EAN",cdSub:"Opcional: sabrás al momento si la distribuidora los rechazaría. ¿No los tienes? Casi todas las distribuidoras los asignan gratis.",
+isrcL:"ISRC de la canción",upcL:"UPC / EAN del lanzamiento",isrcOk:"ISRC válido · {p}",isrcLen:"Un ISRC tiene 12 caracteres: país (2 letras), registrante (3), año (2), número (5)",isrcFmt:"Formato no válido. Ejemplo: ES-A1B-25-00001",
+upcOk:"Código {t} válido",upcLen:"Debe tener 12 dígitos (UPC) o 13 (EAN)",upcFmt:"Solo dígitos",upcChk:"Dígito de control incorrecto: el último debería ser {d}. Cópialo de nuevo de tu distribuidora."},
+fr:{chkOrig:"Fichier d'origine",chkOut:"Fichier prêt",optTrim:"Couper les silences",optTrimSub:"Retire les secondes vides avant et après le morceau",
+xMis:"Nommé .{e} mais c'est en fait du {k}",xLossy:"{k} est compressé : si tu as le master WAV ou FLAC, utilise-le",xMono:"Mono → stéréo",
+xClip:"Clipping dans le master ({n} points) : à corriger au mix, la conversion ne le répare pas",xSil:"Le fichier est silencieux",
+xLead:"{s} s de silence au début",xTail:"{s} s de silence à la fin",xTrimHint:"active « Couper les silences »",xTrimmed:"Silences coupés ({s} s)",xDC:"DC offset corrigé",
+
+cPeak:"True peak sous -1 dB",cPeakW:"True peak au-dessus de -1 dB : active le volume pour Spotify",
+cCmyk:"CMJN → RVB",cAlpha:"Transparence → fond blanc",cFlat:"Presque d'une seule couleur : risque de refus comme pochette générique",
+cdT:"Vérifier ISRC et UPC/EAN",cdSub:"Facultatif : tu sais tout de suite si ton distributeur les refuserait. Pas de codes ? La plupart des distributeurs les attribuent gratuitement.",
+isrcL:"ISRC du morceau",upcL:"UPC / EAN de la sortie",isrcOk:"ISRC valide · {p}",isrcLen:"Un ISRC a 12 caractères : pays (2 lettres), déclarant (3), année (2), numéro (5)",isrcFmt:"Format non valide. Exemple : FR-A1B-25-00001",
+upcOk:"Code {t} valide",upcLen:"Il faut 12 chiffres (UPC) ou 13 (EAN)",upcFmt:"Chiffres uniquement",upcChk:"Chiffre de contrôle erroné : le dernier devrait être {d}. Recopie-le depuis ton distributeur."},
+de:{chkOrig:"Originaldatei",chkOut:"Fertige Datei",optTrim:"Stille kürzen",optTrimSub:"Entfernt leere Sekunden vor und nach dem Song",
+xMis:"Heißt .{e}, ist aber eigentlich {k}",xLossy:"{k} ist komprimiert: Wenn du den WAV- oder FLAC-Master hast, nimm den",xMono:"Mono → Stereo",
+xClip:"Clipping im Master ({n} Stellen): im Mix beheben, die Umwandlung repariert das nicht",xSil:"Die Datei ist stumm",
+xLead:"{s} s Stille am Anfang",xTail:"{s} s Stille am Ende",xTrimHint:"„Stille kürzen“ einschalten",xTrimmed:"Stille gekürzt ({s} s)",xDC:"DC-Offset korrigiert",
+
+cPeak:"True Peak unter -1 dB",cPeakW:"True Peak über -1 dB: Spotify-Lautstärke einschalten",
+cCmyk:"CMYK → RGB",cAlpha:"Transparenz → weißer Hintergrund",cFlat:"Fast nur eine Farbe: kann als generisches Cover abgelehnt werden",
+cdT:"ISRC und UPC/EAN prüfen",cdSub:"Optional: Du siehst sofort, ob dein Distributor sie ablehnen würde. Keine Codes? Die meisten Distributoren vergeben sie kostenlos.",
+isrcL:"ISRC des Songs",upcL:"UPC / EAN des Releases",isrcOk:"Gültiger ISRC · {p}",isrcLen:"Ein ISRC hat 12 Zeichen: Land (2 Buchstaben), Registrant (3), Jahr (2), Nummer (5)",isrcFmt:"Ungültiges Format. Beispiel: DE-A1B-25-00001",
+upcOk:"Gültiger {t}-Code",upcLen:"Es braucht 12 Ziffern (UPC) oder 13 (EAN)",upcFmt:"Nur Ziffern",upcChk:"Falsche Prüfziffer: Die letzte sollte {d} sein. Kopiere den Code erneut vom Distributor."},
+pt:{chkOrig:"Arquivo original",chkOut:"Arquivo pronto",optTrim:"Cortar silêncios",optTrimSub:"Remove os segundos vazios antes e depois da faixa",
+xMis:"Chama-se .{e} mas na verdade é {k}",xLossy:"{k} é comprimido: se você tem o master WAV ou FLAC, use esse",xMono:"Mono → estéreo",
+xClip:"Clipping no master ({n} pontos): corrija na mixagem, a conversão não conserta",xSil:"O arquivo está em silêncio",
+xLead:"{s} s de silêncio no início",xTail:"{s} s de silêncio no final",xTrimHint:"ative “Cortar silêncios”",xTrimmed:"Silêncios cortados ({s} s)",xDC:"DC offset corrigido",
+
+cPeak:"True peak abaixo de -1 dB",cPeakW:"True peak acima de -1 dB: ative o volume para Spotify",
+cCmyk:"CMYK → RGB",cAlpha:"Transparência → fundo branco",cFlat:"Quase de uma cor só: pode ser recusada como capa genérica",
+cdT:"Verificar ISRC e UPC/EAN",cdSub:"Opcional: veja na hora se a distribuidora recusaria. Não tem os códigos? A maioria das distribuidoras atribui de graça.",
+isrcL:"ISRC da faixa",upcL:"UPC / EAN do lançamento",isrcOk:"ISRC válido · {p}",isrcLen:"Um ISRC tem 12 caracteres: país (2 letras), registrante (3), ano (2), número (5)",isrcFmt:"Formato inválido. Exemplo: BR-A1B-25-00001",
+upcOk:"Código {t} válido",upcLen:"Precisa ter 12 dígitos (UPC) ou 13 (EAN)",upcFmt:"Só dígitos",upcChk:"Dígito de controle errado: o último deveria ser {d}. Copie de novo da distribuidora."}};
+for(const k in Z)Object.assign(T[k],Z[k]);
 const $=s=>document.querySelector(s);
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 /* lingua: ?lang= dalle pagine del sito, poi la scelta salvata, poi la lingua del telefono; altrimenti inglese */
@@ -331,7 +412,7 @@ function applyLang(){
   document.querySelectorAll('[data-ph]').forEach(el=>el.placeholder=t(el.dataset.ph));
   aiNote();
   $('#rules').innerHTML=t('rules').map(r=>`<li>${r}</li>`).join('');
-  rerender();
+  codeMsg();rerender();
 }
 $('#lang').onchange=e=>{lang=e.target.value;store.set('sp-lang',lang);applyLang();applyPromo()};
 function applyFmt(){document.querySelectorAll('#fmt button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===format))}
@@ -363,6 +444,7 @@ function applyPromo(){
 const results={audio:[],cover:[]};let uid=0;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const label=x=>typeof x==='function'?x():x;
+const chipList=a=>a.map(([c,x])=>`<span class="chip ${c}">${c==='i'?'':c==='w'?'⚠︎ ':'✓ '}${esc(label(x))}</span>`).join('');
 function rerender(){
   for(const k of ['audio','cover']){
     $('#list-'+k).innerHTML=results[k].map(r=>`<div class="card">
@@ -370,7 +452,8 @@ function rerender(){
       ${r.url?`<img class="prev" src="${r.url}" alt="">`:''}
       ${r.state==='work'?`<div class="state">${t('working')}</div><div class="bar"><i></i></div>`:''}
       ${r.state==='err'?`<div class="state err">${t('err')}</div>`:''}
-      ${r.chips?`<div class="chips">${r.chips.map(([c,x])=>`<span class="chip ${c}">${c==='i'?'':c==='w'?'⚠︎ ':'✓ '}${esc(label(x))}</span>`).join('')}</div>`:''}
+      ${r.check&&r.check.length?`<div class="sub">${t('chkOrig')}</div><div class="chips">${chipList(r.check)}</div>`:''}
+      ${r.chips?`${r.check?`<div class="sub">${t('chkOut')}</div>`:''}<div class="chips">${chipList(r.chips)}</div>`:''}
       ${r.state==='ok'?`<button class="dl" data-dl="${k}:${r.id}">↓ ${t('download')}</button>`:''}
     </div>`).join('');
   }
@@ -422,30 +505,17 @@ const base=n=>n.replace(/\.[^.]+$/,'');
 /* ---------- AUDIO ---------- */
 const SR=44100;
 const OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
-function decode(ab){
+async function decode(ab,h){
+  if(h&&h.kind==='aiff'){ // Chrome/Android can't read AIFF: decode it ourselves, then resample to 44.1 kHz
+    const p=SPCheck.decodeAIFF(new Uint8Array(ab));
+    if(p){const n=p.chans[0].length,ctx=new OAC(p.ch,Math.max(1,Math.ceil(n*SR/p.sr)),SR),b=ctx.createBuffer(p.ch,Math.max(1,n),p.sr);
+      p.chans.forEach((c,i)=>b.getChannelData(i).set(c));
+      if(p.sr===SR)return b;
+      const s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start();
+      return await new Promise((res,rej)=>{ctx.oncomplete=e=>res(e.renderedBuffer);const q=ctx.startRendering();if(q&&q.then)q.then(res,rej)});}
+  }
   const ctx=new OAC(2,1,SR); // decodeAudioData resamples to 44.1 kHz
   return new Promise((res,rej)=>{const p=ctx.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej)});
-}
-async function kWeighted(L,R){
-  const ctx=new OAC(2,L.length,SR),b=ctx.createBuffer(2,L.length,SR);
-  b.getChannelData(0).set(L);b.getChannelData(1).set(R);
-  const s=ctx.createBufferSource();s.buffer=b;
-  const shelf=ctx.createBiquadFilter();shelf.type='highshelf';shelf.frequency.value=1681;shelf.gain.value=4;
-  const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=38;hp.Q.value=0.5;
-  s.connect(shelf).connect(hp).connect(ctx.destination);s.start();
-  const out=await new Promise((res,rej)=>{ctx.oncomplete=e=>res(e.renderedBuffer);const p=ctx.startRendering();if(p&&p.then)p.then(res,rej)});
-  return [out.getChannelData(0),out.getChannelData(1)];
-}
-function lufs(kL,kR){ // ITU-R BS.1770 gated integrated loudness
-  const n=kL.length,P=new Float64Array(n+1);
-  for(let i=0;i<n;i++)P[i+1]=P[i]+kL[i]*kL[i]+kR[i]*kR[i];
-  const bs=Math.round(.4*SR),st=Math.round(.1*SR),z=[];
-  if(n<bs)z.push(P[n]/Math.max(n,1));else for(let i=0;i+bs<=n;i+=st)z.push((P[i+bs]-P[i])/bs);
-  const ld=x=>-0.691+10*Math.log10(x);
-  const abs=z.filter(x=>ld(x)>-70);if(!abs.length)return -70;
-  const rel=ld(abs.reduce((a,b)=>a+b,0)/abs.length)-10;
-  const g=abs.filter(x=>ld(x)>rel);
-  return ld(g.reduce((a,b)=>a+b,0)/g.length);
 }
 function toInt16(ch,gain){ // TPDF dither to 16-bit
   const o=new Int16Array(ch.length);
@@ -470,15 +540,51 @@ async function mp3(L,R){
   return parts;
 }
 const tick=()=>new Promise(z=>setTimeout(z,30));
-async function doAudio(r,loud,f){
-  const b=await decode(await r.src.arrayBuffer());
-  const L=b.getChannelData(0),R=b.numberOfChannels>1?b.getChannelData(1):L;
+const sgn=x=>(x>0.05?'+':'')+fmt(x);
+function origLabel(h,ch,ext){
+  const k=SPCheck.label(h.kind||ext),bits=h.bits?(h.float?' 32-bit float':` ${h.bits}-bit`):'',sr=h.sr?` · ${fmt(h.sr/1000,h.sr%1000?1:0)} kHz`:'';
+  return ()=>`${k}${bits}${sr} · ${ch===1?'mono':ch>2?ch+' ch':t('cSt').toLowerCase()}`;
+}
+async function doAudio(r,loud,f,trim){
+  const ab=await r.src.arrayBuffer();
+  const h=SPCheck.header(new Uint8Array(ab.slice(0,65536))); // read before decoding: decodeAudioData empties the buffer
+  const b=await decode(ab,h);
+  let L=b.getChannelData(0),R=b.numberOfChannels>1?b.getChannelData(1):L;
+  /* 1. check the ORIGINAL file */
+  const fext=SPCheck.extOf(r.name),k=h.kind,ch=h.ch||b.numberOfChannels,chk=[['i',origLabel(h,ch,fext)]];
+  if(k&&fext&&fext!==k&&!(fext==='m4a'&&(k==='aac'||k==='mov')))chk.push(['w',()=>t('xMis').replace('{e}',fext).replace('{k}',SPCheck.label(k))]);
+  if(SPCheck.isLossy(k||fext))chk.push(['w',()=>t('xLossy').replace('{k}',SPCheck.label(k||fext))]);
+  if(ch===1)chk.push(['',()=>t('xMono')]);
+  const sc=SPCheck.scan(L,R);
+  if(sc.clips>=3)chk.push(['w',()=>t('xClip').replace('{n}',sc.clips)]);
+  /* 2. fix what can be fixed: DC offset, silence at the edges (if asked) */
+  const dcm=Math.max(Math.abs(sc.dc[0]),Math.abs(sc.dc[1]));
+  if(dcm>1e-4){SPCheck.removeDC(L,R,sc.dc);if(dcm>1e-3)chk.push(['',()=>t('xDC')])}
+  Object.assign(sc,SPCheck.edges(L,R,SR)); // after DC removal, or an offset would hide the silence
+  if(sc.silent)chk.push(['w',()=>t('xSil')]);
+  else{
+    let cut=0;
+    if(trim&&(sc.lead>0.5||sc.tail>1.5)){
+      const s=sc.lead>0.5?Math.max(0,sc.first-Math.round(.05*SR)):0,e=sc.tail>1.5?Math.min(L.length,sc.last+1+SR):L.length,mono=R===L;
+      cut=(L.length-(e-s))/SR;L=L.subarray(s,e);R=mono?L:R.subarray(s,e);
+    }
+    if(cut>0.05)chk.push(['',()=>t('xTrimmed').replace('{s}',fmt(cut))]);
+    else{
+      if(sc.lead>2)chk.push(['w',()=>t('xLead').replace('{s}',fmt(sc.lead))+(trim?'':' · '+t('xTrimHint'))]);
+      if(sc.tail>5)chk.push(['w',()=>t('xTail').replace('{s}',fmt(sc.tail))+(trim?'':' · '+t('xTrimHint'))]);
+    }
+  }
   let peak=0;for(let i=0;i<L.length;i++){const a=Math.abs(L[i]),c=Math.abs(R[i]);if(a>peak)peak=a;if(c>peak)peak=c}
-  const [kL,kR]=await kWeighted(L,R);
-  const lu=lufs(kL,kR);
-  const CEIL=Math.pow(10,-1/20); // -1 dBFS
+  await tick();
+  const tp=SPCheck.truePeak(L,R,peak);await tick();
+  const [kL,kR]=SPCheck.kWeight(L,R,SR); // exact BS.1770 K-weighting
+  const lo=SPCheck.loudness(kL,kR,SR),lu=lo.I;
+  chk.push(['i',`${fmt(lu)} LUFS · ${sgn(SPCheck.db(tp))} dBTP`]);
+  r.check=chk;
+  /* 3. level: -14 LUFS with true peak at most -1 dBTP (Spotify's advice), or just no clipping */
+  const CEIL=Math.pow(10,-1/20);
   let gain=1;
-  if(loud)gain=Math.min(Math.pow(10,(-14-lu)/20),CEIL/peak);
+  if(loud&&!sc.silent)gain=Math.min(Math.pow(10,(-14-lu)/20),CEIL/tp);
   else if(peak>0.999)gain=0.999/peak;
   await tick();
   const iL=toInt16(L,gain),iR=toInt16(R,gain);await tick();
@@ -488,19 +594,20 @@ async function doAudio(r,loud,f){
   else{data=[encodeFLAC(iL,iR,SR)];type='audio/flac';ext='flac';spec='FLAC 16-bit · '+fmt(44.1)+' kHz'}
   r.out=base(r.name)+'.'+ext;
   r.file=new File(data,r.out,{type});
-  const pdb=20*Math.log10(peak*gain||1e-9),d=Math.round(b.duration);
-  r.chips=[['',spec],['',()=>t('cSt')],pdb<=-0.95?['',()=>t('cPeak')]:['w',()=>t('cPeakW')],
-    ['i',`${fmt(lu+20*Math.log10(gain))} LUFS · ${Math.floor(d/60)}:${String(Math.floor(d%60)).padStart(2,'0')} · ${fmt(r.file.size/1e6)} MB`]];
+  const tpo=SPCheck.db(tp*gain),d=Math.round(L.length/SR);
+  r.chips=[['',spec],['',()=>t('cSt')],tpo<=-0.95?['',()=>t('cPeak')]:['w',()=>t('cPeakW')],
+    ['i',`${fmt(lu+20*Math.log10(gain))} LUFS · ${sgn(tpo)} dBTP${lo.LRA!=null?` · LRA ${fmt(lo.LRA)} LU`:''}`],
+    ['i',`${Math.floor(d/60)}:${String(Math.floor(d%60)).padStart(2,'0')} · ${fmt(r.file.size/1e6)} MB`]];
   r.state='ok';
 }
 $('#in-audio').onchange=async e=>{
   const files=[...e.target.files];e.target.value='';
-  const loud=$('#opt-loud').checked,f=format;
+  const loud=$('#opt-loud').checked,trim=$('#opt-trim').checked,f=format;
   const batch=files.map(x=>({id:++uid,name:x.name,src:x,state:'work'}));
   results.audio.unshift(...batch);rerender();
   for(const r of batch){ // one at a time keeps phone memory low
     if(r.dead)continue;
-    try{await doAudio(r,loud,f)}catch(err){console.error(err);r.state='err'}
+    try{await doAudio(r,loud,f,trim)}catch(err){console.error(err);r.state='err'}
     r.src=null;rerender();
   }
 };
@@ -525,8 +632,19 @@ async function render3000(img,sx,sy,s,stepped){
   return blob;
 }
 async function doCover(r){
+  const info=SPCheck.imageInfo(new Uint8Array(await r.src.arrayBuffer()));
   const src=URL.createObjectURL(r.src),img=await loadImg(src);
   const w=img.naturalWidth,h=img.naturalHeight,s=Math.min(w,h),sx=(w-s)/2,sy=(h-s)/2;
+  // check the ORIGINAL: colour mode, transparency, "blank" one-colour covers (24×24 thumbnail is enough)
+  let flat=99,alpha=false;
+  try{const th=canvas(24),tx=th.getContext('2d');tx.drawImage(img,sx,sy,s,s,0,0,24,24);const px=tx.getImageData(0,0,24,24).data;
+    flat=SPCheck.flatness(px);for(let i=3;i<px.length;i+=4)if(px[i]<250){alpha=true;break}free(th)}catch(e){}
+  const chkList=[['i',`${(info.kind||(r.src.type||'').split('/')[1]||'?').toUpperCase()} · ${w} × ${h}`]];
+  if(info.mode==='cmyk')chkList.push(['',()=>t('cCmyk')]);
+  if(alpha)chkList.push(['',()=>t('cAlpha')]);
+  if(w!==h)chkList.push(['',()=>t('cSq')]);
+  if(s<1000)chkList.push(['w',()=>t('cLow')]);
+  if(flat<4)chkList.push(['w',()=>t('cFlat')]);
   let blob=await render3000(img,sx,sy,s,true);
   // check the real size of the saved file; if the phone shrank it, redo in one step
   let chk=await loadImg(URL.createObjectURL(blob));
@@ -536,10 +654,9 @@ async function doCover(r){
   r.out=base(r.name)+'_3000x3000.jpg';
   r.file=new File([blob],r.out,{type:'image/jpeg'});
   r.url=URL.createObjectURL(blob);
-  r.chips=[ok?['',()=>t('cSize')]:['w',`${chk.naturalWidth} × ${chk.naturalHeight}`],['',()=>t('cJpg')],['',()=>t('cWeight')]];
-  if(w!==h)r.chips.push(['',()=>t('cSq')]);
-  if(s<1000)r.chips.push(['w',()=>t('cLow')]);
-  r.chips.push(['i',`${w}×${h} → ${chk.naturalWidth}×${chk.naturalHeight} · ${fmt(blob.size/1e6)} MB`]);
+  r.check=chkList;
+  r.chips=[ok?['',()=>t('cSize')]:['w',`${chk.naturalWidth} × ${chk.naturalHeight}`],['',()=>t('cJpg')],['',()=>t('cWeight')],
+    ['i',`${chk.naturalWidth} × ${chk.naturalHeight} · ${fmt(blob.size/1e6)} MB`]];
   r.state='ok';
 }
 $('#in-cover').onchange=async e=>{
@@ -575,6 +692,21 @@ $('#ai-go').onclick=async()=>{
   }catch(e){console.error(e);results.cover=[];if(!aiErr)aiErr='fail'}
   r.src=null;aiBusy=false;$('#ai-go').firstElementChild.textContent=t('gen');aiNote();rerender();
 };
+
+/* ---------- ISRC / UPC-EAN check (typed codes never leave the phone) ---------- */
+function codeMsg(){
+  const put=(el,cls,txt)=>{el.className='note'+(cls?' '+cls:'');el.textContent=txt};
+  const i=SPCheck.isrc($('#in-isrc').value),u=SPCheck.barcode($('#in-upc').value);
+  if(i.ok===null)put($('#msg-isrc'),'','');
+  else if(i.ok)put($('#msg-isrc'),'ok','✓ '+t('isrcOk').replace('{p}',i.pretty));
+  else if(i.err==='len'&&i.v.length<12)put($('#msg-isrc'),'',t('isrcLen'));
+  else put($('#msg-isrc'),'err','⚠︎ '+t(i.err==='len'?'isrcLen':'isrcFmt'));
+  if(u.ok===null)put($('#msg-upc'),'','');
+  else if(u.ok)put($('#msg-upc'),'ok','✓ '+t('upcOk').replace('{t}',u.type));
+  else if(u.err==='len'&&u.v.length<12)put($('#msg-upc'),'',t('upcLen'));
+  else put($('#msg-upc'),'err','⚠︎ '+(u.err==='check'?t('upcChk').replace('{d}',u.want):t(u.err==='len'?'upcLen':'upcFmt')));
+}
+$('#in-isrc').oninput=codeMsg;$('#in-upc').oninput=codeMsg;
 
 applyFmt();applyLang();applyPromo();
 /* deep link from converter pages: ?to=mp3|wav|flac opens audio with that format, ?go=cover opens cover */
