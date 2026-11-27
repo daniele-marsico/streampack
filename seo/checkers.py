@@ -316,7 +316,7 @@ def pagina(k, l):
 <meta property="og:type" content="website"><meta property="og:url" content="{url(k, l)}"><meta property="og:title" content="{e(d["title"])}"><meta property="og:description" content="{e(d["desc"])}"><meta property="og:image" content="{SITO}/og-image.jpg">
 <meta name="theme-color" content="#0B0A12"><link rel="icon" href="/icon-192.png"><link rel="stylesheet" href="/video/style.css">{CSS}
 <script type="application/ld+json">{js(ld_app)}</script><script type="application/ld+json">{js(ld_faq)}</script>
-</head><body><div class="w">
+<script src="/ext-links.js" defer></script></head><body><div class="w">
 <nav><a href="/?lang={l}">StreamPack</a><small>{lingue}</small></nav>
 {"".join(corpo)}
 <footer><a href="/?lang={l}">StreamPack</a> · <a href="/privacy">Privacy</a><br>{e(c["foot"])}</footer></div>
